@@ -11,7 +11,7 @@ namespace mustache
     /// </summary>
     internal sealed class PropertyDictionary : IDictionary<string, object>
     {
-        private static readonly Dictionary<Type, Dictionary<string, PropertyInfo>> _cache = new Dictionary<Type,Dictionary<string,PropertyInfo>>();
+        private static readonly Dictionary<Type, Dictionary<string, PropertyInfo>> _cache = new Dictionary<Type, Dictionary<string, PropertyInfo>>();
 
         private readonly object _instance;
         private readonly Dictionary<string, PropertyInfo> _typeCache;

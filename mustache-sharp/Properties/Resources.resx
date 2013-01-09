@@ -117,10 +117,16 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="KeyNotFound" xml:space="preserve">
-    <value>A key or property was not found with the given name.</value>
+  <data name="BlankParameterName" xml:space="preserve">
+    <value>An attempt was made to define a parameter with a null or an invalid identifier.</value>
   </data>
-  <data name="MissingClosingTag" xml:space="preserve">
-    <value>A matching closing tag was not found for the {0} tag.</value>
+  <data name="BlankTagName" xml:space="preserve">
+    <value>An attempt was made to define a tag with a null or an invalid identifier.</value>
+  </data>
+  <data name="DuplicateParameter" xml:space="preserve">
+    <value>A parameter with the same name already exists within the tag.</value>
+  </data>
+  <data name="KeyNotFound" xml:space="preserve">
+    <value>The key {0} could not be found.</value>
   </data>
 </root>

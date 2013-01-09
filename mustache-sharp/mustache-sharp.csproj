@@ -32,16 +32,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CompoundBuilder.cs" />
-    <Compile Include="EachBuilder.cs" />
-    <Compile Include="Formatter.cs" />
-    <Compile Include="IBuilder.cs" />
-    <Compile Include="IfBuilder.cs" />
-    <Compile Include="KeyBuilder.cs" />
+    <Compile Include="CompoundGenerator.cs" />
+    <Compile Include="FormatParser.cs" />
+    <Compile Include="IGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -49,12 +44,12 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="PropertyDictionary.cs" />
-    <Compile Include="Scope.cs" />
-    <Compile Include="StaticBuilder.cs" />
-    <Compile Include="TagAttributes.cs" />
-    <Compile Include="TagType.cs" />
-    <Compile Include="Trimmer.cs" />
-    <Compile Include="WithBuilder.cs" />
+    <Compile Include="RegexHelper.cs" />
+    <Compile Include="StaticGenerator.cs" />
+    <Compile Include="TagDefinition.cs" />
+    <Compile Include="TagParameter.cs" />
+    <Compile Include="KeyScope.cs" />
+    <Compile Include="TagScope.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">

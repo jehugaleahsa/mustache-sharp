@@ -61,20 +61,38 @@ namespace mustache.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to A key or property was not found with the given name..
+        ///   Looks up a localized string similar to An attempt was made to define a parameter with a null or an invalid identifier..
         /// </summary>
-        internal static string KeyNotFound {
+        internal static string BlankParameterName {
             get {
-                return ResourceManager.GetString("KeyNotFound", resourceCulture);
+                return ResourceManager.GetString("BlankParameterName", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to A matching closing tag was not found for the {0} tag..
+        ///   Looks up a localized string similar to An attempt was made to define a tag with a null or an invalid identifier..
         /// </summary>
-        internal static string MissingClosingTag {
+        internal static string BlankTagName {
             get {
-                return ResourceManager.GetString("MissingClosingTag", resourceCulture);
+                return ResourceManager.GetString("BlankTagName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A parameter with the same name already exists within the tag..
+        /// </summary>
+        internal static string DuplicateParameter {
+            get {
+                return ResourceManager.GetString("DuplicateParameter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The key {0} could not be found..
+        /// </summary>
+        internal static string KeyNotFound {
+            get {
+                return ResourceManager.GetString("KeyNotFound", resourceCulture);
             }
         }
     }
