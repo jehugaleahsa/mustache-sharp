@@ -126,7 +126,19 @@
   <data name="DuplicateParameter" xml:space="preserve">
     <value>A parameter with the same name already exists within the tag.</value>
   </data>
+  <data name="DuplicateTagDefinition" xml:space="preserve">
+    <value>The {0} tag has already been registered.</value>
+  </data>
   <data name="KeyNotFound" xml:space="preserve">
     <value>The key {0} could not be found.</value>
+  </data>
+  <data name="MissingClosingTag" xml:space="preserve">
+    <value>Expected a matching {0} tag but none was found.</value>
+  </data>
+  <data name="UnknownTag" xml:space="preserve">
+    <value>Encountered an unknown tag {0}.</value>
+  </data>
+  <data name="WrongNumberOfArguments" xml:space="preserve">
+    <value>The wrong number of arguments were passed to an {0} tag.</value>
   </data>
 </root>

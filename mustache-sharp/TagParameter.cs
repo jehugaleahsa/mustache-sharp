@@ -33,15 +33,6 @@ namespace mustache
         }
 
         /// <summary>
-        /// Gets or sets whether the parameter should be used to define the parameter.
-        /// </summary>
-        public bool IsScopeContext
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
         /// Gets or sets whether the field is required.
         /// </summary>
         public bool IsRequired

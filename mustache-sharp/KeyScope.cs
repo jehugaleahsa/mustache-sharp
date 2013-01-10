@@ -38,7 +38,7 @@ namespace mustache
         /// </summary>
         /// <param name="source">The object to search for keys in.</param>
         /// <returns>The new child scope.</returns>
-        internal KeyScope CreateChildScope(object source)
+        public KeyScope CreateChildScope(object source)
         {
             KeyScope scope = new KeyScope(source, this);
             return scope;
@@ -50,7 +50,7 @@ namespace mustache
         /// <param name="name">The name of the key.</param>
         /// <returns>The value associated with the key with the given name.</returns>
         /// <exception cref="System.Collections.Generic.KeyNotFoundException">A key with the given name could not be found.</exception>
-        public object Find(string name)
+        internal object Find(string name)
         {
             string[] names = name.Split('.');
             string member = names[0];

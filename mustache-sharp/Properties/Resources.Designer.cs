@@ -88,11 +88,47 @@ namespace mustache.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The {0} tag has already been registered..
+        /// </summary>
+        internal static string DuplicateTagDefinition {
+            get {
+                return ResourceManager.GetString("DuplicateTagDefinition", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The key {0} could not be found..
         /// </summary>
         internal static string KeyNotFound {
             get {
                 return ResourceManager.GetString("KeyNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Expected a matching {0} tag but none was found..
+        /// </summary>
+        internal static string MissingClosingTag {
+            get {
+                return ResourceManager.GetString("MissingClosingTag", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Encountered an unknown tag {0}..
+        /// </summary>
+        internal static string UnknownTag {
+            get {
+                return ResourceManager.GetString("UnknownTag", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The wrong number of arguments were passed to an {0} tag..
+        /// </summary>
+        internal static string WrongNumberOfArguments {
+            get {
+                return ResourceManager.GetString("WrongNumberOfArguments", resourceCulture);
             }
         }
     }

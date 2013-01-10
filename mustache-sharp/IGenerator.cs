@@ -8,10 +8,11 @@ namespace mustache
     internal interface IGenerator
     {
         /// <summary>
-        /// Generates the text when the values of the given object are applied to the format plan.
+        /// Generates the text when applying the format plan.
         /// </summary>
-        /// <param name="source">The object whose values should be used to generate the text.</param>
+        /// <param name="provider">The format provider to use when formatting the keys.</param>
+        /// <param name="scope">The current lexical scope of the keys.</param>
         /// <returns>The generated text.</returns>
-        string GetText(object source);
+        string GetText(IFormatProvider provider, KeyScope scope);
     }
 }
