@@ -60,6 +60,7 @@
     <Compile Include="TagParameter.cs" />
     <Compile Include="KeyScope.cs" />
     <Compile Include="TagScope.cs" />
+    <Compile Include="Trimmer.cs" />
     <Compile Include="WithGenerator.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -71,7 +71,11 @@ namespace mustache
             }
             else
             {
-                generators = new List<IGenerator>() { _subGenerator };
+                generators = new List<IGenerator>();
+                if (_subGenerator != null)
+                {
+                    generators.Add(_subGenerator);
+                }
             }
             foreach (KeyScope childScope in scopes)
             {

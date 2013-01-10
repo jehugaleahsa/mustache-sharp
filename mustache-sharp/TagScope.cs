@@ -46,6 +46,18 @@ namespace mustache
         }
 
         /// <summary>
+        /// Trys to register the tag in the current scope.
+        /// </summary>
+        /// <param name="definition">The tag to add to the current scope.</param>
+        public void TryAddTag(TagDefinition definition)
+        {
+            if (Find(definition.Name) == null)
+            {
+                _tagLookup.Add(definition.Name, definition);
+            }
+        }
+
+        /// <summary>
         /// Finds the tag definition with the given name.
         /// </summary>
         /// <param name="tagName">The name of the tag definition to search for.</param>

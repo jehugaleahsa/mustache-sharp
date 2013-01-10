@@ -49,7 +49,8 @@ namespace mustache
         public Generator Compile(string format)
         {
             CompoundGenerator generator = new CompoundGenerator(_master, new ArgumentCollection());
-            int formatIndex = buildCompoundGenerator(_master, _tagScope, generator, format, 0);
+            Trimmer trimmer = new Trimmer();
+            int formatIndex = buildCompoundGenerator(_master, _tagScope, generator, trimmer, format, 0);
             string trailing = format.Substring(formatIndex);
             StaticGenerator staticGenerator = new StaticGenerator(trailing);
             generator.AddGenerator(staticGenerator);
@@ -60,7 +61,7 @@ namespace mustache
         {
             foreach (TagDefinition childTag in definition.ChildTags)
             {
-                scope.AddTag(childTag);
+                scope.TryAddTag(childTag);
             }
         }
 
@@ -121,7 +122,8 @@ namespace mustache
         private static int buildCompoundGenerator(
             TagDefinition tagDefinition, 
             TagScope scope, 
-            CompoundGenerator generator, 
+            CompoundGenerator generator,
+            Trimmer trimmer,
             string format, int formatIndex)
         {
             while (true)
@@ -139,11 +141,10 @@ namespace mustache
                 }
 
                 string leading = format.Substring(formatIndex, match.Index - formatIndex);
-                StaticGenerator staticGenerator = new StaticGenerator(leading);
-                generator.AddGenerator(staticGenerator);
 
                 if (match.Groups["key"].Success)
                 {
+                    trimmer.AddStaticGenerator(generator, true, leading);
                     formatIndex = match.Index + match.Length;
                     string key = match.Groups["key"].Value;
                     string alignment = match.Groups["alignment"].Value;
@@ -161,13 +162,14 @@ namespace mustache
                         string message = String.Format(Resources.UnknownTag, tagName);
                         throw new FormatException(message);
                     }
+                    trimmer.AddStaticGeneratorBeforeTag(generator, true, leading);
                     if (nextDefinition.HasBody)
                     {
                         ArgumentCollection arguments = getArguments(nextDefinition, match);
                         CompoundGenerator compoundGenerator = new CompoundGenerator(nextDefinition, arguments);
                         TagScope nextScope = new TagScope(scope);
                         registerTags(nextDefinition, nextScope);
-                        formatIndex = buildCompoundGenerator(nextDefinition, nextScope, compoundGenerator, format, formatIndex);
+                        formatIndex = buildCompoundGenerator(nextDefinition, nextScope, compoundGenerator, trimmer, format, formatIndex);
                         generator.AddGenerator(nextDefinition, compoundGenerator);
                     }
                     else
@@ -181,6 +183,8 @@ namespace mustache
                 else if (match.Groups["close"].Success)
                 {
                     string tagName = match.Groups["name"].Value;
+                    TagDefinition nextDefinition = scope.Find(tagName);
+                    trimmer.AddStaticGeneratorBeforeTag(generator, false, leading);
                     formatIndex = match.Index;
                     if (tagName == tagDefinition.Name)
                     {
@@ -190,6 +194,7 @@ namespace mustache
                 }
                 else if (match.Groups["comment"].Success)
                 {
+                    trimmer.AddStaticGenerator(generator, false, leading);
                     formatIndex = match.Index + match.Length;
                 }
             }
