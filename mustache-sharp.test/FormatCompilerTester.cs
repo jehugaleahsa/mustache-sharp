@@ -917,5 +917,56 @@ Last";
         }
 
         #endregion
+
+        #region Compound Tags
+
+        /// <summary>
+        /// If a format contains multiple tags, they should be handled just fine.
+        /// </summary>
+        [TestMethod]
+        public void TestCompile_MultipleTags()
+        {
+            FormatCompiler compiler = new FormatCompiler();
+            const string format = @"Hello {{Customer.FirstName}}:
+
+{{#with Order}}
+{{#if LineItems}}
+Below are your order details:
+
+{{#each LineItems}}
+    {{Name}}: {{UnitPrice:C}} x {{Quantity}}
+{{/each}}
+
+Your order total was: {{Total:C}}
+{{/if}}
+{{/with}}";
+            Generator generator = compiler.Compile(format);
+            string result = generator.Render(new
+            {
+                Customer = new { FirstName = "Bob" },
+                Order = new
+                {
+                    Total = 7.50m,
+                    LineItems = new object[] 
+                    {
+                        new { Name = "Banana", UnitPrice = 2.50m, Quantity = 1 },
+                        new { Name = "Orange", UnitPrice = .50m, Quantity = 5 },
+                        new { Name = "Apple", UnitPrice = .25m, Quantity = 10 },
+                    }
+                }
+            });
+            const string expected = @"Hello Bob:
+
+Below are your order details:
+
+    Banana: $2.50 x 1
+    Orange: $0.50 x 5
+    Apple: $0.25 x 10
+
+Your order total was: $7.50";
+            Assert.AreEqual(expected, result, "The wrong text was generated.");
+        }
+
+        #endregion
     }
 }
