@@ -8,6 +8,9 @@ namespace mustache
     /// </summary>
     public static class RegexHelper
     {
+        private const string Key = @"[_\w][_\w\d]*";
+        internal const string CompoundKey = Key + @"(\." + Key + ")*";
+
         /// <summary>
         /// Determines whether the given name is a legal identifier.
         /// </summary>
@@ -15,7 +18,7 @@ namespace mustache
         /// <returns>True if the name is a legal identifier; otherwise, false.</returns>
         public static bool IsValidIdentifier(string name)
         {
-            Regex regex = new Regex(@"^[_\w][_\w\d]*$");
+            Regex regex = new Regex("^" + Key + "$");
             return regex.IsMatch(name);
         }
     }

@@ -37,6 +37,8 @@
     <Compile Include="ArgumentCollection.cs" />
     <Compile Include="CompoundGenerator.cs" />
     <Compile Include="ConditionTagDefinition.cs" />
+    <Compile Include="ContentTagDefinition.cs" />
+    <Compile Include="InlineTagDefinition.cs" />
     <Compile Include="EachTagDefinition.cs" />
     <Compile Include="ElifTagDefinition.cs" />
     <Compile Include="ElseTagDefinition.cs" />
@@ -59,7 +61,6 @@
     <Compile Include="TagDefinition.cs" />
     <Compile Include="TagParameter.cs" />
     <Compile Include="KeyScope.cs" />
-    <Compile Include="TagScope.cs" />
     <Compile Include="Trimmer.cs" />
     <Compile Include="WithGenerator.cs" />
   </ItemGroup>

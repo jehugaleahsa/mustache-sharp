@@ -6,7 +6,7 @@ namespace mustache
     /// <summary>
     /// Defines a tag that changes the scope to the object passed as an argument.
     /// </summary>
-    internal sealed class WithTagDefinition : TagDefinition
+    internal sealed class WithTagDefinition : ContentTagDefinition
     {
         private const string contextParameter = "context";
 
@@ -19,29 +19,20 @@ namespace mustache
         }
 
         /// <summary>
+        /// Gets whether the tag only exists within the scope of its parent.
+        /// </summary>
+        protected override bool GetIsContextSensitive()
+        {
+            return false;
+        }
+
+        /// <summary>
         /// Gets the parameters that can be passed to the tag.
         /// </summary>
         /// <returns>The parameters.</returns>
-        protected override TagParameter[] GetParameters()
+        protected override IEnumerable<TagParameter> GetParameters()
         {
             return new TagParameter[] { new TagParameter(contextParameter) { IsRequired = true } };
-        }
-
-        /// <summary>
-        /// Gets whether the tag has content.
-        /// </summary>
-        public override bool HasBody
-        {
-            get { return true; }
-        }
-
-        /// <summary>
-        /// Gets the tags that come into scope within the tag.
-        /// </summary>
-        /// <returns>The child tag.</returns>
-        protected override TagDefinition[] GetChildTags()
-        {
-            return new TagDefinition[0];
         }
 
         /// <summary>

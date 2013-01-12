@@ -1,90 +1,147 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace mustache
 {
     /// <summary>
-    /// Removes unnecessary whitespace from static text.
+    /// Removes unnecessary lines from the final output.
     /// </summary>
     internal sealed class Trimmer
     {
-        private bool hasHeader;
-        private bool hasFooter;
-        private bool hasTag;
-        private bool canTrim;
+        private readonly LinkedList<LineDetails> _lines;
+        private LinkedListNode<LineDetails> _currentLine;
 
         /// <summary>
         /// Initializes a new instance of a Trimmer.
         /// </summary>
         public Trimmer()
         {
-            hasTag = false;
-            canTrim = true;
+            _lines = new LinkedList<LineDetails>();
+            _currentLine = _lines.AddLast(new LineDetails());
         }
 
         /// <summary>
-        /// Processes the given text, creating a StaticGenerator and adding it to the current compound generator.
+        /// Updates the state of the trimmer, indicating that the given text was encountered before an inline tag.
         /// </summary>
-        /// <param name="generator">The compound generator to add the static generator to.</param>
-        /// <param name="isHeader">Gets whether we're encountered the header tag.</param>
-        /// <param name="value">The static text to trim.</param>
-        public void AddStaticGeneratorBeforeTag(CompoundGenerator generator, bool isHeader, string value)
+        /// <param name="value">The text at the end of the format string.</param>
+        /// <param name="generator">The generator created for the inline tag.</param>
+        /// <returns>A static generator containing the passed text.</returns>
+        public IEnumerable<StaticGenerator> RecordText(string value, bool isTag, bool isOutput)
         {
-            string trimmed = processLines(value);
-            hasHeader |= isHeader;
-            hasFooter |= hasHeader && !isHeader;
-            addStaticGenerator(generator, trimmed);
-        }
-
-        /// <summary>
-        /// Processes the given text, creating a StaticGenerator and adding it to the current compound generator.
-        /// </summary>
-        /// <param name="generator">The compound generator to add the static generator to.</param>
-        /// <param name="isOutput">Specifies whether the tag results in output.</param>
-        /// <param name="value">The static text to trim.</param>
-        public void AddStaticGenerator(CompoundGenerator generator, bool isOutput, string value)
-        {
-            string trimmed = processLines(value);
-            canTrim &= !isOutput;
-            addStaticGenerator(generator, trimmed);
-        }
-
-        private string processLines(string value)
-        {
-            string trimmed = value;
-            int newline = value.IndexOf(Environment.NewLine);
-            if (newline == -1)
+            int newLineIndex = value.IndexOf(Environment.NewLine);
+            if (newLineIndex == -1)
             {
-                canTrim &= String.IsNullOrWhiteSpace(value);
+                StaticGenerator generator = new StaticGenerator() { Value = value };
+                _currentLine.Value.Generators.Add(generator);
+                _currentLine.Value.HasTag |= isTag;
+                _currentLine.Value.HasOutput |= !String.IsNullOrWhiteSpace(value);
+                yield return generator;
             }
             else
             {
-                // finish processing the previous line
-                if (canTrim && hasTag && (!hasHeader || !hasFooter))
+                string[] lines = value.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
+
+                // get the trailing generator
+                string trailing = lines[0];
+                StaticGenerator trailingGenerator = new StaticGenerator() { Value = trailing };
+                _currentLine.Value.Generators.Add(trailingGenerator);
+                _currentLine.Value.HasOutput |= !String.IsNullOrWhiteSpace(trailing);
+                yield return trailingGenerator;
+
+                // get the middle generators
+                for (int lineIndex = 1; lineIndex < lines.Length - 1; ++lineIndex)
                 {
-                    string lineEnd = trimmed.Substring(0, newline);
-                    if (String.IsNullOrWhiteSpace(lineEnd))
-                    {
-                        trimmed = trimmed.Substring(newline + Environment.NewLine.Length);
-                    }
+                    string middle = lines[lineIndex];
+                    StaticGenerator middleGenerator = new StaticGenerator() { Value = middle };
+                    LineDetails middleDetails = new LineDetails() { HasTag = false };
+                    _currentLine = _lines.AddLast(middleDetails);
+                    _currentLine.Value.Generators.Add(middleGenerator);
+                    _currentLine.Value.HasOutput = true;
+                    yield return middleGenerator;
                 }
-                // start processing the next line
-                hasTag = false;
-                hasHeader = false;
-                hasFooter = false;
-                int lastNewline = value.LastIndexOf(Environment.NewLine);
-                string lineStart = value.Substring(lastNewline + Environment.NewLine.Length);
-                canTrim = String.IsNullOrWhiteSpace(lineStart);
+
+                // get the leading generator
+                string leading = lines[lines.Length - 1];
+                StaticGenerator leadingGenerator = new StaticGenerator() { Value = leading };
+                LineDetails details = new LineDetails() { HasTag = isTag };
+                _currentLine = _lines.AddLast(details);
+                _currentLine.Value.Generators.Add(leadingGenerator);
+                _currentLine.Value.HasOutput = !String.IsNullOrWhiteSpace(leading);
+                yield return leadingGenerator;
             }
-            return trimmed;
+            if (isOutput)
+            {
+                _currentLine.Value.HasOutput = true;
+            }
         }
 
-        private static void addStaticGenerator(CompoundGenerator generator, string trimmed)
+        public void Trim()
         {
-            if (trimmed.Length > 0)
+            removeBlankLines();
+            separateLines();
+            removeEmptyGenerators();
+        }
+
+        private void removeBlankLines()
+        {
+            LinkedListNode<LineDetails> current = _lines.First;
+            while (current != null)
             {
-                StaticGenerator leading = new StaticGenerator(trimmed);
-                generator.AddGenerator(leading);
+                LineDetails details = current.Value;
+                LinkedListNode<LineDetails> temp = current;
+                current = current.Next;
+                if (details.HasTag && !details.HasOutput)
+                {
+                    foreach (StaticGenerator generator in temp.Value.Generators)
+                    {
+                        generator.Prune();
+                    }
+                    temp.List.Remove(temp);
+                }
             }
+        }
+
+        private void separateLines()
+        {
+            LinkedListNode<LineDetails> current = _lines.First;
+            while (current != _lines.Last)
+            {
+                List<StaticGenerator> generators = current.Value.Generators;
+                StaticGenerator lastGenerator = generators[generators.Count - 1];
+                lastGenerator.Value += Environment.NewLine;
+                current = current.Next;
+            }
+        }
+
+        private void removeEmptyGenerators()
+        {
+            LinkedListNode<LineDetails> current = _lines.First;
+            while (current != null)
+            {
+                foreach (StaticGenerator generator in current.Value.Generators)
+                {
+                    if (generator.Value.Length == 0)
+                    {
+                        generator.Prune();
+                    }
+                }
+                current = current.Next;
+            }
+        }
+
+        private sealed class LineDetails
+        {
+            public LineDetails()
+            {
+                Generators = new List<StaticGenerator>();
+            }
+
+            public bool HasTag { get; set; }
+
+            public List<StaticGenerator> Generators { get; set; }
+
+            public bool HasOutput { get; set; }
         }
     }
 }

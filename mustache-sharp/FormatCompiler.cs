@@ -12,33 +12,48 @@ namespace mustache
     /// </summary>
     public sealed class FormatCompiler
     {
-        private const string key = @"[_\w][_\w\d]*";
-        private const string compoundKey = key + @"(\." + key + ")*";
-
-        private readonly MasterTagDefinition _master;
-        private readonly TagScope _tagScope;
+        private readonly Dictionary<string, TagDefinition> _tagLookup;
+        private readonly Dictionary<string, Regex> _regexLookup;
+        private readonly MasterTagDefinition _masterDefinition;
 
         /// <summary>
         /// Initializes a new instance of a FormatCompiler.
         /// </summary>
         public FormatCompiler()
         {
-            _master = new MasterTagDefinition();
-            _tagScope = new TagScope();
-            registerTags(_master, _tagScope);
+            _tagLookup = new Dictionary<string, TagDefinition>();
+            _regexLookup = new Dictionary<string, Regex>();
+            _masterDefinition = new MasterTagDefinition();
+
+            IfTagDefinition ifDefinition = new IfTagDefinition();
+            _tagLookup.Add(ifDefinition.Name, ifDefinition);
+            ElifTagDefinition elifDefinition = new ElifTagDefinition();
+            _tagLookup.Add(elifDefinition.Name, elifDefinition);
+            ElseTagDefinition elseDefinition = new ElseTagDefinition();
+            _tagLookup.Add(elseDefinition.Name, elseDefinition);
+            EachTagDefinition eachDefinition = new EachTagDefinition();
+            _tagLookup.Add(eachDefinition.Name, eachDefinition);
+            WithTagDefinition withDefinition = new WithTagDefinition();
+            _tagLookup.Add(withDefinition.Name, withDefinition);
         }
 
         /// <summary>
         /// Registers the given tag definition with the parser.
         /// </summary>
         /// <param name="definition">The tag definition to register.</param>
-        public void RegisterTag(TagDefinition definition)
+        /// <param name="isTopLevel">Specifies whether the tag is immediately in scope.</param>
+        public void RegisterTag(TagDefinition definition, bool isTopLevel)
         {
             if (definition == null)
             {
                 throw new ArgumentNullException("definition");
             }
-            _tagScope.AddTag(definition);
+            if (_tagLookup.ContainsKey(definition.Name))
+            {
+                string message = String.Format(Resources.DuplicateTagDefinition, definition.Name);
+                throw new ArgumentException(message, "definition");
+            }
+            _tagLookup.Add(definition.Name, definition);
         }
 
         /// <summary>
@@ -48,46 +63,61 @@ namespace mustache
         /// <returns>The text generator.</returns>
         public Generator Compile(string format)
         {
-            CompoundGenerator generator = new CompoundGenerator(_master, new ArgumentCollection());
+            if (format == null)
+            {
+                throw new ArgumentNullException("format");
+            }
+            CompoundGenerator generator = new CompoundGenerator(_masterDefinition, new ArgumentCollection());
             Trimmer trimmer = new Trimmer();
-            int formatIndex = buildCompoundGenerator(_master, _tagScope, generator, trimmer, format, 0);
+            int formatIndex = buildCompoundGenerator(_masterDefinition, generator, trimmer, format, 0);
             string trailing = format.Substring(formatIndex);
-            StaticGenerator staticGenerator = new StaticGenerator(trailing);
-            generator.AddGenerator(staticGenerator);
+            generator.AddStaticGenerators(trimmer.RecordText(trailing, false, false));
+            trimmer.Trim();
             return new Generator(generator);
         }
 
-        private static void registerTags(TagDefinition definition, TagScope scope)
+        private Match findNextTag(TagDefinition definition, string format, int formatIndex)
         {
-            foreach (TagDefinition childTag in definition.ChildTags)
-            {
-                scope.TryAddTag(childTag);
-            }
-        }
-
-        private static Match findNextTag(TagDefinition definition, string format, int formatIndex)
-        {
-            List<string> matches = new List<string>();
-            matches.Add(getKeyRegex());
-            matches.Add(getCommentTagRegex());
-            foreach (TagDefinition closingTag in definition.ClosingTags)
-            {
-                matches.Add(getClosingTagRegex(closingTag));
-            }
-            foreach (TagDefinition childTag in definition.ChildTags)
-            {
-                matches.Add(getTagRegex(childTag));
-            }
-            string match = "{{(" + String.Join("|", matches) + ")}}";
-            Regex regex = new Regex(match);
+            Regex regex = prepareRegex(definition);
             return regex.Match(format, formatIndex);
         }
 
-        private static string getClosingTagRegex(TagDefinition definition)
+        private Regex prepareRegex(TagDefinition definition)
+        {
+            Regex regex;
+            if (!_regexLookup.TryGetValue(definition.Name, out regex))
+            {
+                List<string> matches = new List<string>();
+                matches.Add(getKeyRegex());
+                matches.Add(getCommentTagRegex());
+                foreach (string closingTag in definition.ClosingTags)
+                {
+                    matches.Add(getClosingTagRegex(closingTag));
+                }
+                foreach (TagDefinition globalDefinition in _tagLookup.Values)
+                {
+                    if (!globalDefinition.IsContextSensitive)
+                    {
+                        matches.Add(getTagRegex(globalDefinition));
+                    }
+                }
+                foreach (string childTag in definition.ChildTags)
+                {
+                    TagDefinition childDefinition = _tagLookup[childTag];
+                    matches.Add(getTagRegex(childDefinition));
+                }
+                string match = "{{(" + String.Join("|", matches) + ")}}";
+                regex = new Regex(match, RegexOptions.Compiled);
+                _regexLookup.Add(definition.Name, regex);
+            }
+            return regex;
+        }
+
+        private static string getClosingTagRegex(string tagName)
         {
             StringBuilder regexBuilder = new StringBuilder();
             regexBuilder.Append(@"(?<close>(/(?<name>");
-            regexBuilder.Append(definition.Name);
+            regexBuilder.Append(tagName);
             regexBuilder.Append(@")\s*?))");
             return regexBuilder.ToString();
         }
@@ -99,7 +129,7 @@ namespace mustache
 
         private static string getKeyRegex()
         {
-            return @"((?<key>" + compoundKey + @")(,(?<alignment>(-)?[\d]+))?(:(?<format>.*?))?)";
+            return @"((?<key>" + RegexHelper.CompoundKey + @")(,(?<alignment>(\+|-)?[\d]+))?(:(?<format>.*?))?)";
         }
 
         private static string getTagRegex(TagDefinition definition)
@@ -110,18 +140,21 @@ namespace mustache
             regexBuilder.Append(@")");
             foreach (TagParameter parameter in definition.Parameters)
             {
-                regexBuilder.Append(@"\s+?");
+                regexBuilder.Append(@"(\s+?");
                 regexBuilder.Append(@"(?<argument>");
-                regexBuilder.Append(compoundKey);
-                regexBuilder.Append(@")");
+                regexBuilder.Append(RegexHelper.CompoundKey);
+                regexBuilder.Append(@"))");
+                if (!parameter.IsRequired)
+                {
+                    regexBuilder.Append("?");
+                }
             }
             regexBuilder.Append(@"\s*?))");
             return regexBuilder.ToString();
         }
 
-        private static int buildCompoundGenerator(
+        private int buildCompoundGenerator(
             TagDefinition tagDefinition, 
-            TagScope scope, 
             CompoundGenerator generator,
             Trimmer trimmer,
             string format, int formatIndex)
@@ -144,7 +177,7 @@ namespace mustache
 
                 if (match.Groups["key"].Success)
                 {
-                    trimmer.AddStaticGenerator(generator, true, leading);
+                    generator.AddStaticGenerators(trimmer.RecordText(leading, true, true));
                     formatIndex = match.Index + match.Length;
                     string key = match.Groups["key"].Value;
                     string alignment = match.Groups["alignment"].Value;
@@ -156,24 +189,23 @@ namespace mustache
                 {
                     formatIndex = match.Index + match.Length;
                     string tagName = match.Groups["name"].Value;
-                    TagDefinition nextDefinition = scope.Find(tagName);
+                    TagDefinition nextDefinition = _tagLookup[tagName];
                     if (nextDefinition == null)
                     {
                         string message = String.Format(Resources.UnknownTag, tagName);
                         throw new FormatException(message);
                     }
-                    trimmer.AddStaticGeneratorBeforeTag(generator, true, leading);
-                    if (nextDefinition.HasBody)
+                    if (nextDefinition.HasContent)
                     {
+                        generator.AddStaticGenerators(trimmer.RecordText(leading, true, false));
                         ArgumentCollection arguments = getArguments(nextDefinition, match);
                         CompoundGenerator compoundGenerator = new CompoundGenerator(nextDefinition, arguments);
-                        TagScope nextScope = new TagScope(scope);
-                        registerTags(nextDefinition, nextScope);
-                        formatIndex = buildCompoundGenerator(nextDefinition, nextScope, compoundGenerator, trimmer, format, formatIndex);
+                        formatIndex = buildCompoundGenerator(nextDefinition, compoundGenerator, trimmer, format, formatIndex);
                         generator.AddGenerator(nextDefinition, compoundGenerator);
                     }
                     else
                     {
+                        generator.AddStaticGenerators(trimmer.RecordText(leading, true, true));
                         Match nextMatch = findNextTag(nextDefinition, format, formatIndex);
                         ArgumentCollection arguments = getArguments(nextDefinition, nextMatch);
                         InlineGenerator inlineGenerator = new InlineGenerator(nextDefinition, arguments);
@@ -182,9 +214,9 @@ namespace mustache
                 }
                 else if (match.Groups["close"].Success)
                 {
+                    generator.AddStaticGenerators(trimmer.RecordText(leading, true, false));
                     string tagName = match.Groups["name"].Value;
-                    TagDefinition nextDefinition = scope.Find(tagName);
-                    trimmer.AddStaticGeneratorBeforeTag(generator, false, leading);
+                    TagDefinition nextDefinition = _tagLookup[tagName];
                     formatIndex = match.Index;
                     if (tagName == tagDefinition.Name)
                     {
@@ -194,7 +226,7 @@ namespace mustache
                 }
                 else if (match.Groups["comment"].Success)
                 {
-                    trimmer.AddStaticGenerator(generator, false, leading);
+                    generator.AddStaticGenerators(trimmer.RecordText(leading, true, false));
                     formatIndex = match.Index + match.Length;
                 }
             }

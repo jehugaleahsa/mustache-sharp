@@ -30,7 +30,7 @@ namespace mustache
             if (!String.IsNullOrWhiteSpace(alignment))
             {
                 formatBuilder.Append(",");
-                formatBuilder.Append(alignment);
+                formatBuilder.Append(alignment.TrimStart('+'));
             }
             if (!String.IsNullOrWhiteSpace(formatting))
             {

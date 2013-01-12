@@ -15,5 +15,13 @@ namespace mustache
             : base("if")
         {
         }
+
+        /// <summary>
+        /// Gets whether the tag only exists within the scope of its parent.
+        /// </summary>
+        protected override bool GetIsContextSensitive()
+        {
+            return false;
+        }
     }
 }

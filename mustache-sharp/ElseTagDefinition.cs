@@ -6,7 +6,7 @@ namespace mustache
     /// <summary>
     /// Defines a tag that renders its content if all preceding if and elif tags.
     /// </summary>
-    internal sealed class ElseTagDefinition : TagDefinition
+    internal sealed class ElseTagDefinition : ContentTagDefinition
     {
         /// <summary>
         /// Initializes a new instance of a ElseTagDefinition.
@@ -17,37 +17,19 @@ namespace mustache
         }
 
         /// <summary>
-        /// Gets the parameters that can be passed to the tag.
+        /// Gets whether the tag only exists within the scope of its parent.
         /// </summary>
-        /// <returns>The parameters.</returns>
-        protected override TagParameter[] GetParameters()
+        protected override bool GetIsContextSensitive()
         {
-            return new TagParameter[0];
-        }
-
-        /// <summary>
-        /// Gets whether the tag contains content.
-        /// </summary>
-        public override bool HasBody
-        {
-            get { return true; }
+            return true;
         }
 
         /// <summary>
         /// Gets the tags that indicate the end of the current tag's content.
         /// </summary>
-        public override IEnumerable<TagDefinition> ClosingTags
+        protected override IEnumerable<string> GetClosingTags()
         {
-            get { return new TagDefinition[] { new IfTagDefinition() }; }
-        }
-
-        /// <summary>
-        /// Gets the tags that come into scope within the context of the tag.
-        /// </summary>
-        /// <returns>The tag definitions.</returns>
-        protected override TagDefinition[] GetChildTags()
-        {
-            return new TagDefinition[0];
+            return new string[] { "if" };
         }
     }
 }

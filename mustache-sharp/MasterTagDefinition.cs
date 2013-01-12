@@ -6,7 +6,7 @@ namespace mustache
     /// <summary>
     /// Defines a pseudo tag that wraps the entire content of a format string.
     /// </summary>
-    internal sealed class MasterTagDefinition : TagDefinition
+    internal sealed class MasterTagDefinition : ContentTagDefinition
     {
         /// <summary>
         /// Initializes a new instance of a MasterTagDefinition.
@@ -17,42 +17,20 @@ namespace mustache
         }
 
         /// <summary>
-        /// Gets the parameters that can be passed to the tag.
+        /// Gets whether the tag only exists within the scope of its parent.
         /// </summary>
-        /// <returns>The parameters.</returns>
-        protected override TagParameter[] GetParameters()
+        protected override bool GetIsContextSensitive()
         {
-            return new TagParameter[0];
+            return true;
         }
 
         /// <summary>
-        /// Gets whether the tag has content.
+        /// Gets the name of the tags that indicate that the tag's context is closed.
         /// </summary>
-        public override bool HasBody
+        /// <returns>The tag names.</returns>
+        protected override IEnumerable<string> GetClosingTags()
         {
-            get { return true; }
-        }
-
-        /// <summary>
-        /// Gets the tags that indicate the end of the tags context.
-        /// </summary>
-        public override IEnumerable<TagDefinition> ClosingTags
-        {
-            get { return new TagDefinition[0]; }
-        }
-
-        /// <summary>
-        /// Gets the tags that come into scope within the context of the tag.
-        /// </summary>
-        /// <returns>The tags.</returns>
-        protected override TagDefinition[] GetChildTags()
-        {
-            return new TagDefinition[]
-            {
-                new IfTagDefinition(),
-                new EachTagDefinition(),
-                new WithTagDefinition(),
-            };
+            return new string[] { };
         }
     }
 }

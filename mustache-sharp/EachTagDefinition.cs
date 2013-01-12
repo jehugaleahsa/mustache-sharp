@@ -8,7 +8,7 @@ namespace mustache
     /// Defines a tag that can iterate over a collection of items and render
     /// the content using each item as the context.
     /// </summary>
-    internal sealed class EachTagDefinition : TagDefinition
+    internal sealed class EachTagDefinition : ContentTagDefinition
     {
         private const string collectionParameter = "collection";
 
@@ -21,29 +21,20 @@ namespace mustache
         }
 
         /// <summary>
+        /// Gets whether the tag only exists within the scope of its parent.
+        /// </summary>
+        protected override bool GetIsContextSensitive()
+        {
+            return false;
+        }
+
+        /// <summary>
         /// Gets the parameters that can be passed to the tag.
         /// </summary>
         /// <returns>The parameters.</returns>
-        protected override TagParameter[] GetParameters()
+        protected override IEnumerable<TagParameter> GetParameters()
         {
             return new TagParameter[] { new TagParameter(collectionParameter) { IsRequired = true } };
-        }
-
-        /// <summary>
-        /// Gets whether the tag has content.
-        /// </summary>
-        public override bool HasBody
-        {
-            get { return true; }
-        }
-
-        /// <summary>
-        /// Gets the tags that come into scope within the context of the tag.
-        /// </summary>
-        /// <returns>The tag definitions.</returns>
-        protected override TagDefinition[] GetChildTags()
-        {
-            return new TagDefinition[0];
         }
 
         /// <summary>
@@ -64,6 +55,15 @@ namespace mustache
             {
                 yield return scope.CreateChildScope(item);
             }
+        }
+
+        /// <summary>
+        /// Gets the tags that are in scope under this tag.
+        /// </summary>
+        /// <returns>The name of the tags that are in scope.</returns>
+        protected override IEnumerable<string> GetChildTags()
+        {
+            return new string[] { };
         }
     }
 }

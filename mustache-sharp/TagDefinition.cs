@@ -45,59 +45,86 @@ namespace mustache
         }
 
         /// <summary>
+        /// Gets whether the tag is limited to the parent tag's context.
+        /// </summary>
+        internal bool IsContextSensitive
+        {
+            get { return GetIsContextSensitive(); }
+        }
+
+        /// <summary>
+        /// Gets whether a tag is limited to the parent tag's context.
+        /// </summary>
+        protected abstract bool GetIsContextSensitive();
+
+        /// <summary>
         /// Gets the parameters that are defined for the tag.
         /// </summary>
-        public IEnumerable<TagParameter> Parameters
+        internal IEnumerable<TagParameter> Parameters
         {
-            get { return new ReadOnlyCollection<TagParameter>(GetParameters()); }
+            get { return GetParameters(); }
         }
 
         /// <summary>
         /// Specifies which parameters are passed to the tag.
         /// </summary>
         /// <returns>The tag parameters.</returns>
-        protected abstract TagParameter[] GetParameters();
+        protected virtual IEnumerable<TagParameter> GetParameters()
+        {
+            return new TagParameter[] { };
+        }
 
         /// <summary>
         /// Gets whether the tag contains content.
         /// </summary>
-        public abstract bool HasBody
+        internal bool HasContent
         {
-            get;
+            get { return GetHasContent(); }
         }
+
+        /// <summary>
+        /// Gets whether tag has content.
+        /// </summary>
+        /// <returns>True if the tag has content; otherwise, false.</returns>
+        protected abstract bool GetHasContent();
 
         /// <summary>
         /// Gets the tags that can indicate that the tag has closed.
         /// This field is only used if no closing tag is expected.
         /// </summary>
-        public virtual IEnumerable<TagDefinition> ClosingTags
+        internal IEnumerable<string> ClosingTags
         {
-            get 
+            get  { return GetClosingTags(); }
+        }
+
+        protected virtual IEnumerable<string> GetClosingTags()
+        {
+            if (HasContent)
             {
-                if (HasBody)
-                {
-                    return new TagDefinition[] { this };
-                }
-                else
-                {
-                    return new TagDefinition[0];
-                }
+                return new string[] { Name };
+            }
+            else
+            {
+                return new string[] { };
             }
         }
 
         /// <summary>
         /// Gets the tags that are in scope within the current tag.
         /// </summary>
-        public IEnumerable<TagDefinition> ChildTags
+        internal IEnumerable<string> ChildTags
         {
-            get { return new ReadOnlyCollection<TagDefinition>(GetChildTags()); }
+            get { return GetChildTags(); }
         }
 
         /// <summary>
         /// Specifies which tags are scoped under the current tag.
         /// </summary>
         /// <returns>The child tag definitions.</returns>
-        protected abstract TagDefinition[] GetChildTags();
+        protected virtual IEnumerable<string> GetChildTags()
+        {
+            return new string[] { };
+        }
 
         /// <summary>
         /// Gets the scope to use when building the inner text of the tag.

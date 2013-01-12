@@ -11,7 +11,7 @@ namespace mustache
     {
         private readonly TagDefinition _definition;
         private readonly ArgumentCollection _arguments;
-        private readonly List<IGenerator> _primaryGenerators;
+        private readonly LinkedList<IGenerator> _primaryGenerators;
         private IGenerator _subGenerator;
 
         /// <summary>
@@ -23,7 +23,7 @@ namespace mustache
         {
             _definition = definition;
             _arguments = arguments;
-            _primaryGenerators = new List<IGenerator>();
+            _primaryGenerators = new LinkedList<IGenerator>();
         }
 
         /// <summary>
@@ -47,6 +47,19 @@ namespace mustache
             addGenerator(generator, isSubGenerator);
         }
 
+        /// <summary>
+        /// Creates a StaticGenerator from the given value and adds it.
+        /// </summary>
+        /// <param name="generators">The static generators to add.</param>
+        public void AddStaticGenerators(IEnumerable<StaticGenerator> generators)
+        {
+            foreach (StaticGenerator generator in generators)
+            {
+                LinkedListNode<IGenerator> node = _primaryGenerators.AddLast(generator);
+                generator.Node = node;
+            }
+        }
+
         private void addGenerator(IGenerator generator, bool isSubGenerator)
         {
             if (isSubGenerator)
@@ -55,7 +68,7 @@ namespace mustache
             }
             else
             {
-                _primaryGenerators.Add(generator);
+                _primaryGenerators.AddLast(generator);
             }
         }
 
@@ -64,17 +77,17 @@ namespace mustache
             StringBuilder builder = new StringBuilder();
             Dictionary<string, object> arguments = _arguments.GetArguments(scope);
             IEnumerable<KeyScope> scopes = _definition.GetChildScopes(scope, arguments);
-            List<IGenerator> generators;
+            LinkedList<IGenerator> generators;
             if (_definition.ShouldGeneratePrimaryGroup(arguments))
             {
                 generators = _primaryGenerators;
             }
             else
             {
-                generators = new List<IGenerator>();
+                generators = new LinkedList<IGenerator>();
                 if (_subGenerator != null)
                 {
-                    generators.Add(_subGenerator);
+                    generators.AddLast(_subGenerator);
                 }
             }
             foreach (KeyScope childScope in scopes)

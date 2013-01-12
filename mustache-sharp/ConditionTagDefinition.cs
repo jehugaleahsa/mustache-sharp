@@ -8,7 +8,7 @@ namespace mustache
     /// <summary>
     /// Defines a tag that conditionally prints its content.
     /// </summary>
-    internal abstract class ConditionTagDefinition : TagDefinition
+    internal abstract class ConditionTagDefinition : ContentTagDefinition
     {
         private const string conditionParameter = "condition";
 
@@ -25,30 +25,18 @@ namespace mustache
         /// Gets the parameters that can be passed to the tag.
         /// </summary>
         /// <returns>The parameters.</returns>
-        protected override TagParameter[] GetParameters()
+        protected override IEnumerable<TagParameter> GetParameters()
         {
             return new TagParameter[] { new TagParameter(conditionParameter) { IsRequired = true } };
-        }
-
-        /// <summary>
-        /// Gets whether the tag will contain content.
-        /// </summary>
-        public override bool HasBody
-        {
-            get { return true; }
         }
 
         /// <summary>
         /// Gets the tags that come into scope within the context of the current tag.
         /// </summary>
         /// <returns>The child tag definitions.</returns>
-        protected override TagDefinition[] GetChildTags()
+        protected override IEnumerable<string> GetChildTags()
         {
-            return new TagDefinition[] 
-            {
-                new ElifTagDefinition(),
-                new ElseTagDefinition(),
-            };
+            return new string[] { "elif", "else" };
         }
 
         /// <summary>
@@ -58,7 +46,7 @@ namespace mustache
         /// <returns>True if the tag's generator should be used as a secondary generator.</returns>
         public override bool ShouldCreateSecondaryGroup(TagDefinition definition)
         {
-            return (definition is ElifTagDefinition) || (definition is ElseTagDefinition);
+            return new string[] { "elif", "else" }.Contains(definition.Name);
         }
 
         /// <summary>

@@ -15,13 +15,21 @@ namespace mustache
             : base("elif")
         {
         }
+
+        /// <summary>
+        /// Gets whether the tag only exists within the scope of its parent.
+        /// </summary>
+        protected override bool GetIsContextSensitive()
+        {
+            return true;
+        }
         
         /// <summary>
         /// Gets the tags that indicate the end of the current tags context.
         /// </summary>
-        public override IEnumerable<TagDefinition> ClosingTags
+        protected override IEnumerable<string> GetClosingTags()
         {
-            get { return new TagDefinition[] { new IfTagDefinition() }; }
+            return new string[] { "if" };
         }
     }
 }
