@@ -11,7 +11,7 @@ Generating text has always been a chore. Either you're concatenating strings lik
 
 **mustache** is a logic-less text generator. However, almost every time I've ever needed to generate text I needed to turn some of it on or off depending on a value. Not having the ability to turn things off usually meant going back to building my text in parts. 
 
-Introducing [handlebars.js](http://handlebarsjs.com/). If you've needed to generate any HTML templates, **handlebars.js** is a really awesome tool. Not only does it support an `if` and `each` tag, it lets you define your own tags! It also makes it easy to reference nested values `{{Customer.Address.ZipCode}}`.
+Introducing [handlebars.js](http://handlebarsjs.com/)... If you've needed to generate any HTML templates, **handlebars.js** is a really awesome tool. Not only does it support an `if` and `each` tag, it lets you define your own tags! It also makes it easy to reference nested values `{{Customer.Address.ZipCode}}`.
 
 **mustache#** brings the power of **handlebars.js** to .NET and then takes it a little bit further. Not only does it support the same tags, it also handles whitespace intelligently. **mustache#** will automatically remove lines that contain nothing but whitespace and tags. This allows you to make text templates that are easy to read.
 
