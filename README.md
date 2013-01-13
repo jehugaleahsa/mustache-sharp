@@ -99,3 +99,53 @@ Within a block of text, you may refer to a same top-level placeholder over and o
     {{/with}}
     
 Here, the `Customer.Address` property will be searched first for the placeholders. If a property cannot be found in the `Address` object, it will be searched for in the `Customer` object and on up.
+
+## Defining Your Own Tags
+If you need to define your own tags, **mustache#** has everything you need.
+
+Once you define your own tags, you can register them with the compiler using the `RegisterTag` method.
+
+    FormatCompiler compiler = new FormatCompiler();
+    compiler.RegisterTag(myTag);
+    
+Your tag can be referenced within the template by leading its name with a `#`.
+
+Custom tags can take any number of parameters. Parameters can have default values if you don't want to pass them all the time. Arguments are passed by specifying a placeholder.
+
+### Multi-line Tags
+Here's an example of a tag that will make all of its content upper case:
+
+    public class UpperTagDefinition : ContentTagDefinition
+    {
+        public UpperTagDefinition()
+            : base(true)
+        {
+        }
+        
+        public override string Decorate(IFormatProvider provider, string innerText, Dictionary<string, object> arguments)
+        {
+            return innerText.ToUpper();
+        }
+    }
+    
+### In-line Tags
+Here's an example of a tag that will join the items of a collection:
+
+    public class JoinTagDefinition : InlineTagDefinition
+    {
+        public JoinTagDefinition()
+            : base("join")
+        {
+        }
+        
+        protected override IEnumerable<TagParameter> GetParameters()
+        {
+            return new TagParameter[] { new TagParameter("collection") };
+        }
+        
+        protected override string GetText(IFormatProvider provider, Dictionary<string, object> arguments)
+        {
+            IEnumerable collection = (IEnumerable)arguments["collection"];
+            return String.Join(", ", collection.Cast<object>().Select(o => o.ToString()));
+        }
+    }
