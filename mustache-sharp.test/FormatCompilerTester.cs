@@ -741,10 +741,11 @@ Last";
         }
 
         /// <summary>
-        /// Second else blocks will be interpreted as just another piece of text.
+        /// Second else blocks will result in an exceptions being thrown.
         /// </summary>
         [TestMethod]
-        public void TestCompile_IfElse_TwoElses_IncludesSecondElseInElse()
+        [ExpectedException(typeof(FormatException))]
+        public void TestCompile_IfElse_TwoElses_IncludesSecondElseInElse_Throws()
         {
             FormatCompiler parser = new FormatCompiler();
             const string format = "Before{{#if this}}Yay{{#else}}Nay{{#else}}Bad{{/if}}After";
@@ -910,7 +911,7 @@ Last";
                 return new TagParameter[] { new TagParameter("param") { IsRequired = false, DefaultValue = 123 } };
             }
 
-            public override string Decorate(IFormatProvider provider, Dictionary<string, object> arguments)
+            protected override string GetText(IFormatProvider provider, Dictionary<string, object> arguments)
             {
                 return arguments["param"].ToString();
             }

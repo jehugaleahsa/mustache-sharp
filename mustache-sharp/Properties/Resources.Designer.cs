@@ -115,7 +115,7 @@ namespace mustache.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Encountered an unknown tag {0}..
+        ///   Looks up a localized string similar to Encountered an unknown tag. It was either not registered or exists in a different context..
         /// </summary>
         internal static string UnknownTag {
             get {

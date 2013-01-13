@@ -55,7 +55,10 @@ namespace mustache
         /// <summary>
         /// Gets whether a tag is limited to the parent tag's context.
         /// </summary>
-        protected abstract bool GetIsContextSensitive();
+        protected virtual bool GetIsContextSensitive()
+        {
+            return false;
+        }
 
         /// <summary>
         /// Gets the parameters that are defined for the tag.

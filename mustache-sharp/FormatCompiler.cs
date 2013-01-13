@@ -106,6 +106,7 @@ namespace mustache
                     TagDefinition childDefinition = _tagLookup[childTag];
                     matches.Add(getTagRegex(childDefinition));
                 }
+                matches.Add(getUnknownTagRegex());
                 string match = "{{(" + String.Join("|", matches) + ")}}";
                 regex = new Regex(match, RegexOptions.Compiled);
                 _regexLookup.Add(definition.Name, regex);
@@ -151,6 +152,11 @@ namespace mustache
             }
             regexBuilder.Append(@"\s*?))");
             return regexBuilder.ToString();
+        }
+
+        private string getUnknownTagRegex()
+        {
+            return @"(?<unknown>(#.*?))";
         }
 
         private int buildCompoundGenerator(
@@ -228,6 +234,10 @@ namespace mustache
                 {
                     generator.AddStaticGenerators(trimmer.RecordText(leading, true, false));
                     formatIndex = match.Index + match.Length;
+                }
+                else if (match.Groups["unknown"].Success)
+                {
+                    throw new FormatException(Resources.UnknownTag);
                 }
             }
             return formatIndex;
