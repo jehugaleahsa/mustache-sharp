@@ -122,7 +122,7 @@ Here's an example of a tag that will make all of its content upper case:
         {
         }
         
-        public override string Decorate(IFormatProvider provider, string innerText, Dictionary<string, object> arguments)
+        protected override string Decorate(IFormatProvider provider, string innerText, Dictionary<string, object> arguments)
         {
             return innerText.ToUpper();
         }
