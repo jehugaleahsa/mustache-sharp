@@ -41,8 +41,61 @@ Each format item takes the following form and consists of the following componen
 
     {{identifier[,alignment][:formatString]}}
 
-The matching braces are required. The alignment and the format strings are optional and match the syntax accepted by `String.Format`. Refer to [String.Format](http://msdn.microsoft.com/en-us/library/system.string.format.aspx)'s documentation to learn more about the standard and custom format strings.
+The matching braces are required. Notice that they are double curly braces! The alignment and the format strings are optional and match the syntax accepted by `String.Format`. Refer to [String.Format](http://msdn.microsoft.com/en-us/library/system.string.format.aspx)'s documentation to learn more about the standard and custom format strings.
+
+### Placeholder Scope
+The indentifier is used to find a property with a matching name. If you want to print out the object itself, you can use the special identifier `this`.
+
+    FormatCompiler compiler = new FormatCompiler();
+    Generator generator = compiler.Compiler("Hello, {{this}}!!!");
+    string result = generator.Render("Bob");
+    Console.Out.WriteLine(result);  // Hello, Bob!!!
+    
+Some tags, such as `each` and `with`, change which object the values will be retrieved from.
+
+If a property with the placeholder name can't be found at the current scope, the name will be searched for at the next highest level.
+
+**mustache#** will automatically detect when an object is a dictionary and search for matching key. In this case, it still needs to be a valid identifier name.
+
+### Nested Placeholders
+If you want to grab a nested property, you can separate identifiers using `.`.
+
+    {{Customer.Address.ZipCode}}
 
 ## The 'if' tag
+The **if** tag allows you to conditionally include a block of text.
+
+    Hello{{#if Name}}, {{Name}}{{/if}}!!!
+
+The block will be printed if:
+* The value is a non-empty string.
+* The value is a non-empty collection.
+* The value is a char and isn't the NULL char.
+* The value is a non-zero number.
+* The value evaluates to true.
+
+The **if** tag has complimentary **elif** and **else** tags. There can be as many **elif** tags as desired but the **else** tag must appear only once and after all other tags.
+
+    {{#if Male}}Mr.{{#elif Married}}Mrs.{{#else}}Ms.{{/if}}
+
 ## The 'each' tag
+If you need to print out a block of text for each item in a collection, use the **each** tag.
+
+    {{#each Customers}}
+    Hello, {{Name}}!!
+    {{/each}}
+    
+Within the context of the **each** block, the scope changes to the current item. So, in the example above, `Name` would refer to a property in the `Customer` class.
+    
 ## The 'with' tag
+Within a block of text, you may refer to a same top-level placeholder over and over. You can cut down the amount of text by using the **with** tag.
+
+    {{#with Customer.Address}}
+    {{FirstName}} {{LastName}}
+    {{Line1}}
+    {{#if Line2}}{{Line2}}{{/if}}
+    {{#if Line3}}{{Line3}}{{/if}}
+    {{City}} {{State}}, {{ZipCode}}
+    {{/with}}
+    
+Here, the `Customer.Address` property will be searched first for the placeholders. If a property cannot be found in the `Address` object, it will be searched for in the `Customer` object and on up.
