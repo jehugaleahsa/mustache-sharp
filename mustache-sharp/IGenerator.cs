@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 namespace mustache
 {
@@ -10,9 +11,9 @@ namespace mustache
         /// <summary>
         /// Generates the text when applying the format plan.
         /// </summary>
-        /// <param name="provider">The format provider to use when formatting the keys.</param>
         /// <param name="scope">The current lexical scope of the keys.</param>
+        /// <param name="writer">The text writer to send all text to.</param>
         /// <returns>The generated text.</returns>
-        string GetText(IFormatProvider provider, KeyScope scope);
+        void GetText(KeyScope scope, TextWriter writer);
     }
 }

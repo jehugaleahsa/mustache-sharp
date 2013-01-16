@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace mustache
 {
@@ -35,25 +36,5 @@ namespace mustache
         {
             return false;
         }
-
-        /// <summary>
-        /// Generates the text for the tag.
-        /// </summary>
-        /// <param name="provider">The format provider to use.</param>
-        /// <param name="innerText">The text to decorate. This will always be an empty string.</param>
-        /// <param name="arguments">The arguments passed to the tag.</param>
-        /// <returns>The generated text.</returns>
-        public sealed override string Decorate(IFormatProvider provider, string innerText, Dictionary<string, object> arguments)
-        {
-            return GetText(provider, arguments);
-        }
-
-        /// <summary>
-        /// Gets the text of the inline tag.
-        /// </summary>
-        /// <param name="provider">The format provider to use.</param>
-        /// <param name="arguments">The arguments passed to the tag.</param>
-        /// <returns>The generated text.</returns>
-        protected abstract string GetText(IFormatProvider provider, Dictionary<string, object> arguments);
     }
 }

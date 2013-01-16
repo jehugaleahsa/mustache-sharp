@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace mustache
 {
@@ -36,15 +37,16 @@ namespace mustache
         }
 
         /// <summary>
-        /// Gets the scopes to use for generating the tag's content.
+        /// Gets the context to use when building the inner text of the tag.
         /// </summary>
+        /// <param name="writer">The text writer passed</param>
         /// <param name="scope">The current scope.</param>
-        /// <param name="arguments">The arguments that were passed to the tag.</param>
-        /// <returns>The scopes to use for generating the tag's content.</returns>
-        public override IEnumerable<KeyScope> GetChildScopes(KeyScope scope, Dictionary<string, object> arguments)
+        /// <param name="arguments">The arguments passed to the tag.</param>
+        /// <returns>The scope to use when building the inner text of the tag.</returns>
+        public override IEnumerable<NestedContext> GetChildContext(TextWriter writer, KeyScope scope, Dictionary<string, object> arguments)
         {
             object context = arguments[contextParameter];
-            yield return scope.CreateChildScope(context);
+            yield return new NestedContext() { KeyScope = scope.CreateChildScope(context), Writer = writer };
         }
     }
 }

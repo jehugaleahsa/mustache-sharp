@@ -2,6 +2,7 @@
 using System.Globalization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
+using System.IO;
 
 namespace mustache.test
 {
@@ -901,19 +902,14 @@ Last";
             {
             }
 
-            protected override bool GetIsContextSensitive()
-            {
-                return false;
-            }
-
             protected override IEnumerable<TagParameter> GetParameters()
             {
                 return new TagParameter[] { new TagParameter("param") { IsRequired = false, DefaultValue = 123 } };
             }
 
-            protected override string GetText(IFormatProvider provider, Dictionary<string, object> arguments)
+            public override void GetText(TextWriter writer, Dictionary<string, object> arguments)
             {
-                return arguments["param"].ToString();
+                writer.Write(arguments["param"]);
             }
         }
 

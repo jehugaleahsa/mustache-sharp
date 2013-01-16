@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.IO;
 
 namespace mustache
 {
@@ -47,7 +48,9 @@ namespace mustache
         private string render(IFormatProvider provider, object source)
         {
             KeyScope scope = new KeyScope(source);
-            return _generator.GetText(provider, scope);
+            StringWriter writer = new StringWriter(provider);
+            _generator.GetText(scope, writer);
+            return writer.ToString();
         }
     }
 }

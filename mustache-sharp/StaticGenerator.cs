@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace mustache
 {
@@ -45,9 +46,9 @@ namespace mustache
             }
         }
 
-        string IGenerator.GetText(IFormatProvider provider, KeyScope scope)
+        void IGenerator.GetText(KeyScope scope, TextWriter writer)
         {
-            return Value;
+            writer.Write(Value);
         }
     }
 }

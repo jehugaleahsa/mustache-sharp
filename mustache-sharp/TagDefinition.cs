@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using mustache.Properties;
+using System.IO;
 
 namespace mustache
 {
@@ -130,26 +130,35 @@ namespace mustache
         }
 
         /// <summary>
-        /// Gets the scope to use when building the inner text of the tag.
+        /// Gets the context to use when building the inner text of the tag.
         /// </summary>
+        /// <param name="writer">The text writer passed</param>
         /// <param name="scope">The current scope.</param>
         /// <param name="arguments">The arguments passed to the tag.</param>
         /// <returns>The scope to use when building the inner text of the tag.</returns>
-        public virtual IEnumerable<KeyScope> GetChildScopes(KeyScope scope, Dictionary<string, object> arguments)
+        public virtual IEnumerable<NestedContext> GetChildContext(TextWriter writer, KeyScope scope, Dictionary<string, object> arguments)
         {
-            yield return scope;
+            yield return new NestedContext() { KeyScope = scope, Writer = writer };
         }
 
         /// <summary>
         /// Applies additional formatting to the inner text of the tag.
         /// </summary>
-        /// <param name="provider">The format provider to use.</param>
-        /// <param name="innerText">The inner text of the tag.</param>
+        /// <param name="writer">The text writer to write to.</param>
         /// <param name="arguments">The arguments passed to the tag.</param>
-        /// <returns>The decorated inner text.</returns>
-        public virtual string Decorate(IFormatProvider provider, string innerText, Dictionary<string, object> arguments)
+        public virtual void GetText(TextWriter writer, Dictionary<string, object> arguments)
         {
-            return innerText;
+        }
+
+        /// <summary>
+        /// Consolidates the text in the given writer to a string, using the given arguments as necessary.
+        /// </summary>
+        /// <param name="writer">The writer containing the text to consolidate.</param>
+        /// <param name="arguments">The arguments passed to the tag.</param>
+        /// <returns>The consolidated string.</returns>
+        public virtual string ConsolidateWriter(TextWriter writer, Dictionary<string, object> arguments)
+        {
+            return writer.ToString();
         }
 
         /// <summary>

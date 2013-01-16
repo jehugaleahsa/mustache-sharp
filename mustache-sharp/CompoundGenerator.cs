@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.IO;
 
 namespace mustache
 {
@@ -72,11 +72,10 @@ namespace mustache
             }
         }
 
-        string IGenerator.GetText(IFormatProvider provider, KeyScope scope)
+        void IGenerator.GetText(KeyScope scope, TextWriter writer)
         {
-            StringBuilder builder = new StringBuilder();
             Dictionary<string, object> arguments = _arguments.GetArguments(scope);
-            IEnumerable<KeyScope> scopes = _definition.GetChildScopes(scope, arguments);
+            IEnumerable<NestedContext> contexts = _definition.GetChildContext(writer, scope, arguments);
             LinkedList<IGenerator> generators;
             if (_definition.ShouldGeneratePrimaryGroup(arguments))
             {
@@ -90,16 +89,17 @@ namespace mustache
                     generators.AddLast(_subGenerator);
                 }
             }
-            foreach (KeyScope childScope in scopes)
+            foreach (NestedContext context in contexts)
             {
                 foreach (IGenerator generator in generators)
                 {
-                    builder.Append(generator.GetText(provider, childScope));
+                    generator.GetText(context.KeyScope, context.Writer);
+                    if (context.WriterNeedsConsidated)
+                    {
+                        writer.Write(_definition.ConsolidateWriter(context.Writer, arguments));
+                    }
                 }
             }
-            string innerText = builder.ToString();
-            string outerText = _definition.Decorate(provider, innerText, arguments);
-            return outerText;
         }
     }
 }

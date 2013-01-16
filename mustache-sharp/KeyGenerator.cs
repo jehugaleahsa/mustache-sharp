@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Text;
 
 namespace mustache
@@ -41,10 +42,10 @@ namespace mustache
             return formatBuilder.ToString();
         }
 
-        string IGenerator.GetText(IFormatProvider provider, KeyScope scope)
+        void IGenerator.GetText(KeyScope scope, TextWriter writer)
         {
             object value = scope.Find(_key);
-            return String.Format(provider, _format, value);
+            writer.Write(_format, value);
         }
     }
 }

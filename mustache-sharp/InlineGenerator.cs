@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace mustache
 {
@@ -22,10 +23,10 @@ namespace mustache
             _arguments = arguments;
         }
 
-        string IGenerator.GetText(IFormatProvider provider, KeyScope scope)
+        void IGenerator.GetText(KeyScope scope, TextWriter writer)
         {
             Dictionary<string, object> arguments = _arguments.GetArguments(scope);
-            return _definition.Decorate(provider, String.Empty, arguments);
+            _definition.GetText(writer, arguments);
         }
     }
 }
