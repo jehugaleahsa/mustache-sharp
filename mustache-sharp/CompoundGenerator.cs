@@ -93,10 +93,10 @@ namespace mustache
             {
                 foreach (IGenerator generator in generators)
                 {
-                    generator.GetText(context.KeyScope, context.Writer);
+                    generator.GetText(context.KeyScope ?? scope, context.Writer ?? writer);
                     if (context.WriterNeedsConsidated)
                     {
-                        writer.Write(_definition.ConsolidateWriter(context.Writer, arguments));
+                        writer.Write(_definition.ConsolidateWriter(context.Writer ?? writer, arguments));
                     }
                 }
             }
