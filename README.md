@@ -55,7 +55,7 @@ Some tags, such as `each` and `with`, change which object the values will be ret
 
 If a property with the placeholder name can't be found at the current scope, the name will be searched for at the next highest level.
 
-**mustache#** will automatically detect when an object is a dictionary and search for matching key. In this case, it still needs to be a valid identifier name.
+**mustache#** will automatically detect when an object is a dictionary and search for a matching key. In this case, it still needs to be a valid identifier name.
 
 ### Nested Placeholders
 If you want to grab a nested property, you can separate identifiers using `.`.
@@ -70,7 +70,7 @@ The **if** tag allows you to conditionally include a block of text.
 The block will be printed if:
 * The value is a non-empty string.
 * The value is a non-empty collection.
-* The value is a char and isn't the NULL char.
+* The value isn't the NULL char.
 * The value is a non-zero number.
 * The value evaluates to true.
 
@@ -93,8 +93,12 @@ Within a block of text, you may refer to a same top-level placeholder over and o
     {{#with Customer.Address}}
     {{FirstName}} {{LastName}}
     {{Line1}}
-    {{#if Line2}}{{Line2}}{{/if}}
-    {{#if Line3}}{{Line3}}{{/if}}
+    {{#if Line2}}
+    {{Line2}}
+    {{/if}}
+    {{#if Line3}}
+    {{Line3}}
+    {{/if}}
     {{City}} {{State}}, {{ZipCode}}
     {{/with}}
     
@@ -122,11 +126,24 @@ Here's an example of a tag that will make all of its content upper case:
         {
         }
         
-        protected override string Decorate(IFormatProvider provider, string innerText, Dictionary<string, object> arguments)
+        public override IEnumerable<NestedContext> GetChildContext(TextWriter writer, KeyScope scope, Dictionary<string, object> arguments)
         {
-            return innerText.ToUpper();
+            NestedContext context = new NestedContext() 
+            { 
+                KeyScope = scope, 
+                Writer = new StringWriter(), 
+                WriterNeedsConsolidated = true,
+            };
+            yield return context;
+        }
+        
+        public override string ConsolidateWriter(TextWriter writer, Dictionary<string, object> arguments)
+        {
+            return writer.ToString().ToUpperInvariant();
         }
     }
+    
+Another solution is to wrap the given TextWriter with another TextWriter that will change the case of the strings passed to it. This approach requires more work, but would be more efficient. You should attempt to wrap or reuse the text writer passed to the tag.
     
 ### In-line Tags
 Here's an example of a tag that will join the items of a collection:
@@ -143,9 +160,10 @@ Here's an example of a tag that will join the items of a collection:
             return new TagParameter[] { new TagParameter("collection") };
         }
         
-        protected override string GetText(IFormatProvider provider, Dictionary<string, object> arguments)
+        protected override void GetText(TextWriter writer, Dictionary<string, object> arguments)
         {
             IEnumerable collection = (IEnumerable)arguments["collection"];
-            return String.Join(", ", collection.Cast<object>().Select(o => o.ToString()));
+            string joined = String.Join(", ", collection.Cast<object>().Select(o => o.ToString()));
+            writer.Write(joined);
         }
     }
