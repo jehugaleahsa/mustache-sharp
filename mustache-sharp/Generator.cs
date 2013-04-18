@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 
@@ -10,6 +11,7 @@ namespace mustache
     public sealed class Generator
     {
         private readonly IGenerator _generator;
+        private readonly List<EventHandler<MissingKeyEventArgs>> _handlers;
 
         /// <summary>
         /// Initializes a new instance of a Generator.
@@ -18,6 +20,16 @@ namespace mustache
         internal Generator(IGenerator generator)
         {
             _generator = generator;
+            _handlers = new List<EventHandler<MissingKeyEventArgs>>();
+        }
+
+        /// <summary>
+        /// Occurs when a key/property is not found in the object graph.
+        /// </summary>
+        public event EventHandler<MissingKeyEventArgs> KeyNotFound
+        {
+            add { _handlers.Add(value); }
+            remove { _handlers.Remove(value); }
         }
 
         /// <summary>
@@ -48,6 +60,10 @@ namespace mustache
         private string render(IFormatProvider provider, object source)
         {
             KeyScope scope = new KeyScope(source);
+            foreach (EventHandler<MissingKeyEventArgs> handler in _handlers)
+            {
+                scope.KeyNotFound += handler;
+            }
             StringWriter writer = new StringWriter(provider);
             _generator.GetText(scope, writer);
             return writer.ToString();

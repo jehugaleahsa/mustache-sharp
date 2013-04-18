@@ -34,6 +34,11 @@ namespace mustache
         }
 
         /// <summary>
+        /// Occurs when a key/property is not found in the object graph.
+        /// </summary>
+        public event EventHandler<MissingKeyEventArgs> KeyNotFound;
+
+        /// <summary>
         /// Creates a child scope that searches for keys in the given object.
         /// </summary>
         /// <param name="source">The object to search for keys in.</param>
@@ -41,6 +46,7 @@ namespace mustache
         public KeyScope CreateChildScope(object source)
         {
             KeyScope scope = new KeyScope(source, this);
+            scope.KeyNotFound = KeyNotFound;
             return scope;
         }
 
@@ -77,6 +83,15 @@ namespace mustache
             }
             if (_parent == null)
             {
+                MissingKeyEventArgs args = new MissingKeyEventArgs(name);
+                if (KeyNotFound != null)
+                {
+                    KeyNotFound(this, args);
+                }
+                if (args.Handled)
+                {
+                    return args.Substitute;
+                }
                 string message = String.Format(CultureInfo.CurrentCulture, Resources.KeyNotFound, name);
                 throw new KeyNotFoundException(message);
             }

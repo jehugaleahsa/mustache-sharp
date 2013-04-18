@@ -111,6 +111,47 @@ namespace mustache.test
         }
 
         /// <summary>
+        /// If we try to print a key that doesn't exist, we can provide a
+        /// handler to provide a substitute.
+        /// </summary>
+        [TestMethod]
+        public void TestCompile_MissingKey_CallsKeyNotFoundHandler()
+        {
+            FormatCompiler compiler = new FormatCompiler();
+            const string format = @"Hello, {{Name}}!!!";
+            Generator generator = compiler.Compile(format);
+            generator.KeyNotFound += (obj, args) =>
+            {
+                args.Substitute = "Unknown";
+                args.Handled = true;
+            };
+            string actual = generator.Render(new object());
+            string expected = "Hello, Unknown!!!";
+            Assert.AreEqual(expected, actual, "The wrong message was generated.");
+        }
+
+        /// <summary>
+        /// If the key is the parent object, the search will go up the hierarchy.
+        /// </summary>
+        [TestMethod]
+        public void TestCompile_KeyInParent_LooksUpKeyInParent()
+        {
+            FormatCompiler compiler = new FormatCompiler();
+            const string format = @"{{#with Address}}{{FirstName}} from {{City}}{{/with}}";
+            Generator generator = compiler.Compile(format);
+            string actual = generator.Render(new
+            {
+                FirstName = "Bob",
+                Address = new
+                {
+                    City = "Philadelphia",
+                }
+            });
+            string expected = "Bob from Philadelphia";
+            Assert.AreEqual(expected, actual, "The wrong message was generated.");
+        }
+
+        /// <summary>
         /// If we specify an alignment with a key, the alignment should
         /// be used when rending the value.
         /// </summary>
