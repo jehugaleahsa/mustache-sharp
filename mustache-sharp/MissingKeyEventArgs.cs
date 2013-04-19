@@ -10,16 +10,23 @@ namespace mustache
         /// <summary>
         /// Initializes a new instance of a MissingKeyEventArgs.
         /// </summary>
-        /// <param name="missingKey">The key that had no match.</param>
-        internal MissingKeyEventArgs(string missingKey)
+        /// <param name="key">The fully-qualified key.</param>
+        /// <param name="missingMember">The part of the key that could not be found.</param>
+        internal MissingKeyEventArgs(string key, string missingMember)
         {
-            MissingKey = missingKey;
+            Key = key;
+            MissingMember = missingMember;
         }
 
         /// <summary>
-        /// Gets the key that could not be found.
+        /// Gets the fully-qualified key.
         /// </summary>
-        public string MissingKey { get; private set; }
+        public string Key { get; private set; }
+
+        /// <summary>
+        /// Gets the part of the key that could not be found.
+        /// </summary>
+        public string MissingMember { get; private set; }
 
         /// <summary>
         /// Gets or sets whether to use the substitute.

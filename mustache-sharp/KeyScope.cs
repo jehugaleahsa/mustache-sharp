@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using mustache.Properties;
 
 namespace mustache
@@ -63,39 +64,47 @@ namespace mustache
             object nextLevel = _source;
             if (member != "this")
             {
-                nextLevel = find(member);
+                nextLevel = find(name, member);
             }
             for (int index = 1; index < names.Length; ++index)
             {
                 IDictionary<string, object> context = toLookup(nextLevel);
                 member = names[index];
-                nextLevel = context[member];
+                if (!context.TryGetValue(member, out nextLevel))
+                {
+                    nextLevel = handleKeyNotFound(name, member);
+                }
             }
             return nextLevel;
         }
 
-        private object find(string name)
+        private object find(string fullName, string memberName)
         {
             IDictionary<string, object> lookup = toLookup(_source);
-            if (lookup.ContainsKey(name))
+            if (lookup.ContainsKey(memberName))
             {
-                return lookup[name];
+                return lookup[memberName];
             }
             if (_parent == null)
             {
-                MissingKeyEventArgs args = new MissingKeyEventArgs(name);
-                if (KeyNotFound != null)
-                {
-                    KeyNotFound(this, args);
-                }
-                if (args.Handled)
-                {
-                    return args.Substitute;
-                }
-                string message = String.Format(CultureInfo.CurrentCulture, Resources.KeyNotFound, name);
-                throw new KeyNotFoundException(message);
+                return handleKeyNotFound(fullName, memberName);
             }
-            return _parent.find(name);
+            return _parent.find(fullName, memberName);
+        }
+
+        private object handleKeyNotFound(string fullName, string memberName)
+        {
+            MissingKeyEventArgs args = new MissingKeyEventArgs(fullName, memberName);
+            if (KeyNotFound != null)
+            {
+                KeyNotFound(this, args);
+            }
+            if (args.Handled)
+            {
+                return args.Substitute;
+            }
+            string message = String.Format(CultureInfo.CurrentCulture, Resources.KeyNotFound, memberName);
+            throw new KeyNotFoundException(message);
         }
 
         private static IDictionary<string, object> toLookup(object value)

@@ -152,6 +152,31 @@ namespace mustache.test
         }
 
         /// <summary>
+        /// If part of a key is wrong, the full details should be provided.
+        /// </summary>
+        [TestMethod]
+        public void TestCompile_MultipartKey_PartMissing_ProvidesFullDetail()
+        {
+            FormatCompiler compiler = new FormatCompiler();
+            const string format = @"{{Customer.Name}}";
+            Generator generator = compiler.Compile(format);
+            generator.KeyNotFound += (obj, args) =>
+            {
+                args.Substitute = args.Key + "," + args.MissingMember;
+                args.Handled = true;
+            };
+            string actual = generator.Render(new
+            {
+                Customer = new
+                {
+                    FirstName = "Bob"
+                }
+            });
+            string expected = "Customer.Name,Name";
+            Assert.AreEqual(expected, actual, "The wrong message was generated.");
+        }
+
+        /// <summary>
         /// If we specify an alignment with a key, the alignment should
         /// be used when rending the value.
         /// </summary>
