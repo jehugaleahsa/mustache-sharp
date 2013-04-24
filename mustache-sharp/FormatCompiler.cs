@@ -38,6 +38,11 @@ namespace mustache
         }
 
         /// <summary>
+        /// Occurs when a placeholder is found in the template.
+        /// </summary>
+        public event EventHandler<PlaceholderFoundEventArgs> PlaceholderFound;
+
+        /// <summary>
         /// Registers the given tag definition with the parser.
         /// </summary>
         /// <param name="definition">The tag definition to register.</param>
@@ -188,7 +193,12 @@ namespace mustache
                     string key = match.Groups["key"].Value;
                     string alignment = match.Groups["alignment"].Value;
                     string formatting = match.Groups["format"].Value;
-                    KeyGenerator keyGenerator = new KeyGenerator(key, alignment, formatting);
+                    PlaceholderFoundEventArgs args = new PlaceholderFoundEventArgs(key, alignment, formatting);
+                    if (PlaceholderFound != null)
+                    {
+                        PlaceholderFound(this, args);
+                    }
+                    KeyGenerator keyGenerator = new KeyGenerator(args.Key, args.Alignment, args.Formatting);
                     generator.AddGenerator(keyGenerator);
                 }
                 else if (match.Groups["open"].Success)

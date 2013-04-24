@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Globalization;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace mustache.test
 {
@@ -325,6 +325,25 @@ Content";
             const string expected = @"Content
 Content";
             Assert.AreEqual(expected, result, "The wrong text was generated.");
+        }
+
+        /// <summary>
+        /// We can track all of the keys that appear in a template by
+        /// registering with the PlaceholderFound event.
+        /// </summary>
+        [TestMethod]
+        public void TestCompile_FindsKeys_RecordsKeys()
+        {
+            FormatCompiler compiler = new FormatCompiler();
+            HashSet<string> keys = new HashSet<string>();
+            compiler.PlaceholderFound += (o, e) =>
+            {
+                keys.Add(e.Key);
+            };
+            compiler.Compile(@"{{FirstName}} {{LastName}}");
+            string[] expected = new string[] { "FirstName", "LastName" };
+            string[] actual = keys.OrderBy(s => s).ToArray();
+            CollectionAssert.AreEqual(expected, actual, "Not all placeholders were found.");
         }
 
         #endregion

@@ -18,6 +18,10 @@ namespace mustache
         /// <returns>True if the name is a legal identifier; otherwise, false.</returns>
         public static bool IsValidIdentifier(string name)
         {
+            if (name == null)
+            {
+                return false;
+            }
             Regex regex = new Regex("^" + Key + "$");
             return regex.IsMatch(name);
         }

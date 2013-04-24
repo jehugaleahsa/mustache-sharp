@@ -47,6 +47,7 @@
     <Compile Include="IfTagDefinition.cs" />
     <Compile Include="IGenerator.cs" />
     <Compile Include="InlineGenerator.cs" />
+    <Compile Include="PlaceholderFoundEventArgs.cs" />
     <Compile Include="KeyGenerator.cs" />
     <Compile Include="MasterTagDefinition.cs" />
     <Compile Include="MissingKeyEventArgs.cs" />
