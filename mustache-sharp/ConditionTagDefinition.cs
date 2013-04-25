@@ -90,12 +90,12 @@ namespace mustache
         }
 
         /// <summary>
-        /// Gets the parameter that is used to create a new child context.
+        /// Gets the parameters that are used to create a new child context.
         /// </summary>
-        /// <returns>The parameter that is used to create a new child context.</returns>
-        public override TagParameter GetChildContextParameter()
+        /// <returns>The parameters that are used to create a new child context.</returns>
+        public override IEnumerable<TagParameter> GetChildContextParameters()
         {
-            return null;
+            return new TagParameter[0];
         }
     }
 }

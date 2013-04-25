@@ -39,6 +39,7 @@
     <Compile Include="ConditionTagDefinition.cs" />
     <Compile Include="ContentTagDefinition.cs" />
     <Compile Include="Context.cs" />
+    <Compile Include="ContextParameter.cs" />
     <Compile Include="KeyFoundEventArgs.cs" />
     <Compile Include="InlineTagDefinition.cs" />
     <Compile Include="EachTagDefinition.cs" />

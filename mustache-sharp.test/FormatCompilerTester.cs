@@ -362,10 +362,34 @@ Content";
 
             Assert.IsNotNull(context, "The context was not set.");
             Assert.AreEqual(2, context.Length, "The context did not contain the right number of items.");
-            Assert.AreEqual(String.Empty, context[0].Tag.Name, "The top-most context had the wrong tag type.");
-            Assert.AreEqual("this", context[0].Argument, "The top-level argument should always be 'this'.");
-            Assert.AreEqual("with", context[1].Tag.Name, "The inner context should have been a 'with' tag.");
-            Assert.AreEqual("Address", context[1].Argument, "The inner context argument was wrong.");
+
+            Assert.AreEqual(String.Empty, context[0].TagName, "The top-most context had the wrong tag type.");
+            Assert.AreEqual("with", context[1].TagName, "The bottom context had the wrong tag type.");
+
+            Assert.AreEqual(0, context[0].Parameters.Length, "The top-most context had the wrong number of parameters.");
+            Assert.AreEqual(1, context[1].Parameters.Length, "The bottom context had the wrong number of parameters.");
+            Assert.AreEqual("Address", context[1].Parameters[0].Argument, "The bottom context had the wrong argument.");
+        }
+
+        /// <summary>
+        /// I was leaving behind context even after reaching a closing tag. We need to make sure
+        /// that context is like a call stack and that it is cleaned up after leaving the context.
+        /// </summary>
+        [TestMethod]
+        public void TestCompile_ExitContext_RemoveContext()
+        {
+            FormatCompiler compiler = new FormatCompiler();
+            Context[] context = null;
+            compiler.PlaceholderFound += (o, e) =>
+            {
+                context = e.Context;
+            };
+            compiler.Compile(@"{{#with Address}}{{/with}}{{FirstName}}");
+
+            Assert.IsNotNull(context, "The context was not set.");
+            Assert.AreEqual(1, context.Length, "The context did not contain the right number of items.");
+
+            Assert.AreEqual(String.Empty, context[0].TagName, "The top-most context had the wrong tag type.");
         }
 
         #endregion

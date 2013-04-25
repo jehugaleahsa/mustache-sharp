@@ -74,7 +74,7 @@ namespace mustache
             }
             CompoundGenerator generator = new CompoundGenerator(_masterDefinition, new ArgumentCollection());
             Trimmer trimmer = new Trimmer();
-            List<Context> context = new List<Context>() { new Context(_masterDefinition, "this") };
+            List<Context> context = new List<Context>() { new Context(_masterDefinition.Name, new ContextParameter[0]) };
             int formatIndex = buildCompoundGenerator(_masterDefinition, context, generator, trimmer, format, 0);
             string trailing = format.Substring(formatIndex);
             generator.AddStaticGenerators(trimmer.RecordText(trailing, false, false));
@@ -218,13 +218,19 @@ namespace mustache
                         generator.AddStaticGenerators(trimmer.RecordText(leading, true, false));
                         ArgumentCollection arguments = getArguments(nextDefinition, match);
                         CompoundGenerator compoundGenerator = new CompoundGenerator(nextDefinition, arguments);
-                        string newContext = compoundGenerator.GetContextArgument();
-                        if (newContext != null)
+                        IEnumerable<TagParameter> contextParameters = nextDefinition.GetChildContextParameters();
+                        bool hasContext = contextParameters.Any();
+                        if (hasContext)
                         {
-                            context.Add(new Context(nextDefinition, newContext));
+                            ContextParameter[] parameters = contextParameters.Select(p => new ContextParameter(p.Name, arguments.GetKey(p))).ToArray();
+                            context.Add(new Context(nextDefinition.Name, parameters));
                         }
                         formatIndex = buildCompoundGenerator(nextDefinition, context, compoundGenerator, trimmer, format, formatIndex);
                         generator.AddGenerator(nextDefinition, compoundGenerator);
+                        if (hasContext)
+                        {
+                            context.RemoveAt(context.Count - 1);
+                        }
                     }
                     else
                     {

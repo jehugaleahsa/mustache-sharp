@@ -133,7 +133,7 @@ namespace mustache
         /// Gets the parameter that will be used to create a new child scope.
         /// </summary>
         /// <returns>The parameter that will be used to create a new child scope -or- null if no new scope is created.</returns>
-        public abstract TagParameter GetChildContextParameter();
+        public abstract IEnumerable<TagParameter> GetChildContextParameters();
 
         /// <summary>
         /// Gets the context to use when building the inner text of the tag.

@@ -27,20 +27,6 @@ namespace mustache
         }
 
         /// <summary>
-        /// Gets the argument that will act as the context for the content.
-        /// </summary>
-        /// <returns>The argument that will act as the context for the content.</returns>
-        public string GetContextArgument()
-        {
-            TagParameter parameter = _definition.GetChildContextParameter();
-            if (parameter == null)
-            {
-                return null;
-            }
-            return _arguments.GetKey(parameter);
-        }
-
-        /// <summary>
         /// Adds the given generator. 
         /// </summary>
         /// <param name="generator">The generator to add.</param>

@@ -10,22 +10,22 @@ namespace mustache
         /// <summary>
         /// Initializes a new instance of a Context.
         /// </summary>
-        /// <param name="definition">The definition of tag that created the context.</param>
+        /// <param name="tagName">The name of the tag that created the context.</param>
         /// <param name="argument">The argument used to create the context.</param>
-        internal Context(TagDefinition definition, string argument)
+        internal Context(string tagName, ContextParameter[] parameters)
         {
-            Tag = definition;
-            Argument = argument;
+            TagName = tagName;
+            Parameters = parameters;
         }
 
         /// <summary>
         /// Gets the tag that created the context.
         /// </summary>
-        public TagDefinition Tag { get; private set; }
+        public string TagName { get; private set; }
 
         /// <summary>
         /// Gets the argument used to create the context.
         /// </summary>
-        public string Argument { get; private set; }
+        public ContextParameter[] Parameters { get; private set; }
     }
 }
