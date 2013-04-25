@@ -35,9 +35,14 @@ namespace mustache
         }
 
         /// <summary>
+        /// Occurs when a key/property is found in the object graph.
+        /// </summary>
+        public event EventHandler<KeyFoundEventArgs> KeyFound;
+
+        /// <summary>
         /// Occurs when a key/property is not found in the object graph.
         /// </summary>
-        public event EventHandler<MissingKeyEventArgs> KeyNotFound;
+        public event EventHandler<KeyNotFoundEventArgs> KeyNotFound;
 
         /// <summary>
         /// Creates a child scope that searches for keys in the given object.
@@ -47,6 +52,7 @@ namespace mustache
         public KeyScope CreateChildScope(object source)
         {
             KeyScope scope = new KeyScope(source, this);
+            scope.KeyFound = KeyFound;
             scope.KeyNotFound = KeyNotFound;
             return scope;
         }
@@ -75,6 +81,12 @@ namespace mustache
                     nextLevel = handleKeyNotFound(name, member);
                 }
             }
+            if (KeyFound != null)
+            {
+                KeyFoundEventArgs args = new KeyFoundEventArgs(name, nextLevel);
+                KeyFound(this, args);
+                nextLevel = args.Substitute;
+            }
             return nextLevel;
         }
 
@@ -94,7 +106,7 @@ namespace mustache
 
         private object handleKeyNotFound(string fullName, string memberName)
         {
-            MissingKeyEventArgs args = new MissingKeyEventArgs(fullName, memberName);
+            KeyNotFoundEventArgs args = new KeyNotFoundEventArgs(fullName, memberName);
             if (KeyNotFound != null)
             {
                 KeyNotFound(this, args);

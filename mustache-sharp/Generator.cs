@@ -11,7 +11,8 @@ namespace mustache
     public sealed class Generator
     {
         private readonly IGenerator _generator;
-        private readonly List<EventHandler<MissingKeyEventArgs>> _handlers;
+        private readonly List<EventHandler<KeyFoundEventArgs>> _foundHandlers;
+        private readonly List<EventHandler<KeyNotFoundEventArgs>> _notFoundHandlers;
 
         /// <summary>
         /// Initializes a new instance of a Generator.
@@ -20,16 +21,26 @@ namespace mustache
         internal Generator(IGenerator generator)
         {
             _generator = generator;
-            _handlers = new List<EventHandler<MissingKeyEventArgs>>();
+            _foundHandlers = new List<EventHandler<KeyFoundEventArgs>>();
+            _notFoundHandlers = new List<EventHandler<KeyNotFoundEventArgs>>();
+        }
+
+        /// <summary>
+        /// Occurs when a key/property is found.
+        /// </summary>
+        public event EventHandler<KeyFoundEventArgs> KeyFound
+        {
+            add { _foundHandlers.Add(value); }
+            remove { _foundHandlers.Remove(value); }
         }
 
         /// <summary>
         /// Occurs when a key/property is not found in the object graph.
         /// </summary>
-        public event EventHandler<MissingKeyEventArgs> KeyNotFound
+        public event EventHandler<KeyNotFoundEventArgs> KeyNotFound
         {
-            add { _handlers.Add(value); }
-            remove { _handlers.Remove(value); }
+            add { _notFoundHandlers.Add(value); }
+            remove { _notFoundHandlers.Remove(value); }
         }
 
         /// <summary>
@@ -60,7 +71,11 @@ namespace mustache
         private string render(IFormatProvider provider, object source)
         {
             KeyScope scope = new KeyScope(source);
-            foreach (EventHandler<MissingKeyEventArgs> handler in _handlers)
+            foreach (EventHandler<KeyFoundEventArgs> handler in _foundHandlers)
+            {
+                scope.KeyFound += handler;
+            }
+            foreach (EventHandler<KeyNotFoundEventArgs> handler in _notFoundHandlers)
             {
                 scope.KeyNotFound += handler;
             }

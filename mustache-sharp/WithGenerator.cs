@@ -10,6 +10,7 @@ namespace mustache
     internal sealed class WithTagDefinition : ContentTagDefinition
     {
         private const string contextParameter = "context";
+        private static readonly TagParameter context = new TagParameter(contextParameter) { IsRequired = true };
 
         /// <summary>
         /// Initializes a new instance of a WithTagDefinition.
@@ -33,7 +34,16 @@ namespace mustache
         /// <returns>The parameters.</returns>
         protected override IEnumerable<TagParameter> GetParameters()
         {
-            return new TagParameter[] { new TagParameter(contextParameter) { IsRequired = true } };
+            return new TagParameter[] { context };
+        }
+
+        /// <summary>
+        /// Gets the parameter that is used to create a new child context.
+        /// </summary>
+        /// <returns>The parameter that is used to create a new child context.</returns>
+        public override TagParameter GetChildContextParameter()
+        {
+            return context;
         }
 
         /// <summary>

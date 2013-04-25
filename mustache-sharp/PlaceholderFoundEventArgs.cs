@@ -14,11 +14,13 @@ namespace mustache
         /// <param name="key">The key that was found.</param>
         /// <param name="alignment">The alignment that will be applied to the substitute value.</param>
         /// <param name="formatting">The formatting that will be applied to the substitute value.</param>
-        internal PlaceholderFoundEventArgs(string key, string alignment, string formatting)
+        /// <param name="context">The context where the placeholder was found.</param>
+        internal PlaceholderFoundEventArgs(string key, string alignment, string formatting, Context[] context)
         {
             Key = key;
             Alignment = alignment;
             Formatting = formatting;
+            Context = context;
         }
 
         /// <summary>
@@ -35,5 +37,10 @@ namespace mustache
         /// Gets or sets the formatting that will be applied to the substitute value.
         /// </summary>
         public string Formatting { get; set; }
+
+        /// <summary>
+        /// Gets the context where the placeholder was found.
+        /// </summary>
+        public Context[] Context { get; private set; }
     }
 }

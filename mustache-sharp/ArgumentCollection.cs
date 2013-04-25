@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace mustache
 {
@@ -27,6 +28,23 @@ namespace mustache
         public void AddArgument(TagParameter parameter, string key)
         {
             _argumentLookup.Add(parameter, key);
+        }
+
+        /// <summary>
+        /// Gets the key that will be used to find the substitute value.
+        /// </summary>
+        /// <param name="parameterName">The name of the parameter.</param>
+        public string GetKey(TagParameter parameter)
+        {
+            string key;
+            if (_argumentLookup.TryGetValue(parameter, out key))
+            {
+                return key;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         /// <summary>

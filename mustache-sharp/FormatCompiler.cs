@@ -74,7 +74,8 @@ namespace mustache
             }
             CompoundGenerator generator = new CompoundGenerator(_masterDefinition, new ArgumentCollection());
             Trimmer trimmer = new Trimmer();
-            int formatIndex = buildCompoundGenerator(_masterDefinition, generator, trimmer, format, 0);
+            List<Context> context = new List<Context>() { new Context(_masterDefinition, "this") };
+            int formatIndex = buildCompoundGenerator(_masterDefinition, context, generator, trimmer, format, 0);
             string trailing = format.Substring(formatIndex);
             generator.AddStaticGenerators(trimmer.RecordText(trailing, false, false));
             trimmer.Trim();
@@ -165,7 +166,8 @@ namespace mustache
         }
 
         private int buildCompoundGenerator(
-            TagDefinition tagDefinition, 
+            TagDefinition tagDefinition,
+            List<Context> context,
             CompoundGenerator generator,
             Trimmer trimmer,
             string format, int formatIndex)
@@ -193,7 +195,7 @@ namespace mustache
                     string key = match.Groups["key"].Value;
                     string alignment = match.Groups["alignment"].Value;
                     string formatting = match.Groups["format"].Value;
-                    PlaceholderFoundEventArgs args = new PlaceholderFoundEventArgs(key, alignment, formatting);
+                    PlaceholderFoundEventArgs args = new PlaceholderFoundEventArgs(key, alignment, formatting, context.ToArray());
                     if (PlaceholderFound != null)
                     {
                         PlaceholderFound(this, args);
@@ -216,7 +218,12 @@ namespace mustache
                         generator.AddStaticGenerators(trimmer.RecordText(leading, true, false));
                         ArgumentCollection arguments = getArguments(nextDefinition, match);
                         CompoundGenerator compoundGenerator = new CompoundGenerator(nextDefinition, arguments);
-                        formatIndex = buildCompoundGenerator(nextDefinition, compoundGenerator, trimmer, format, formatIndex);
+                        string newContext = compoundGenerator.GetContextArgument();
+                        if (newContext != null)
+                        {
+                            context.Add(new Context(nextDefinition, newContext));
+                        }
+                        formatIndex = buildCompoundGenerator(nextDefinition, context, compoundGenerator, trimmer, format, formatIndex);
                         generator.AddGenerator(nextDefinition, compoundGenerator);
                     }
                     else

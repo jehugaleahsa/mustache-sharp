@@ -88,5 +88,14 @@ namespace mustache
                 return true;
             }
         }
+
+        /// <summary>
+        /// Gets the parameter that is used to create a new child context.
+        /// </summary>
+        /// <returns>The parameter that is used to create a new child context.</returns>
+        public override TagParameter GetChildContextParameter()
+        {
+            return null;
+        }
     }
 }

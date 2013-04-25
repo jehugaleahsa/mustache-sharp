@@ -12,6 +12,7 @@ namespace mustache
     internal sealed class EachTagDefinition : ContentTagDefinition
     {
         private const string collectionParameter = "collection";
+        private static readonly TagParameter collection = new TagParameter(collectionParameter) { IsRequired = true };
 
         /// <summary>
         /// Initializes a new instance of an EachTagDefinition.
@@ -35,7 +36,7 @@ namespace mustache
         /// <returns>The parameters.</returns>
         protected override IEnumerable<TagParameter> GetParameters()
         {
-            return new TagParameter[] { new TagParameter(collectionParameter) { IsRequired = true } };
+            return new TagParameter[] { collection };
         }
 
         /// <summary>
@@ -66,6 +67,15 @@ namespace mustache
         protected override IEnumerable<string> GetChildTags()
         {
             return new string[] { };
+        }
+
+        /// <summary>
+        /// Gets the parameter that is used to create a new child context.
+        /// </summary>
+        /// <returns>The parameter that is used to create a new child context.</returns>
+        public override TagParameter GetChildContextParameter()
+        {
+            return collection;
         }
     }
 }

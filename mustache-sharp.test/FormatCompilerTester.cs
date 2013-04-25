@@ -332,7 +332,7 @@ Content";
         /// registering with the PlaceholderFound event.
         /// </summary>
         [TestMethod]
-        public void TestCompile_FindsKeys_RecordsKeys()
+        public void TestCompile_FindsPlaceholders_RecordsPlaceholders()
         {
             FormatCompiler compiler = new FormatCompiler();
             HashSet<string> keys = new HashSet<string>();
@@ -344,6 +344,28 @@ Content";
             string[] expected = new string[] { "FirstName", "LastName" };
             string[] actual = keys.OrderBy(s => s).ToArray();
             CollectionAssert.AreEqual(expected, actual, "Not all placeholders were found.");
+        }
+
+        /// <summary>
+        /// We can determine the context in which a placeholder is found by looking at the provided context array.
+        /// </summary>
+        [TestMethod]
+        public void TestCompile_FindsPlaceholders_ProvidesContext()
+        {
+            FormatCompiler compiler = new FormatCompiler();
+            Context[] context = null;
+            compiler.PlaceholderFound += (o, e) =>
+            {
+                context = e.Context;
+            };
+            compiler.Compile(@"{{#with Address}}{{ZipCode}}{{/with}}");
+
+            Assert.IsNotNull(context, "The context was not set.");
+            Assert.AreEqual(2, context.Length, "The context did not contain the right number of items.");
+            Assert.AreEqual(String.Empty, context[0].Tag.Name, "The top-most context had the wrong tag type.");
+            Assert.AreEqual("this", context[0].Argument, "The top-level argument should always be 'this'.");
+            Assert.AreEqual("with", context[1].Tag.Name, "The inner context should have been a 'with' tag.");
+            Assert.AreEqual("Address", context[1].Argument, "The inner context argument was wrong.");
         }
 
         #endregion

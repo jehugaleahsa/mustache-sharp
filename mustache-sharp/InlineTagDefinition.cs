@@ -36,5 +36,14 @@ namespace mustache
         {
             return false;
         }
+
+        /// <summary>
+        /// Gets the parameter that is used to create a child context.
+        /// </summary>
+        /// <returns>The parameter that is used to create a child context.</returns>
+        public override TagParameter GetChildContextParameter()
+        {
+            return null;
+        }
     }
 }
