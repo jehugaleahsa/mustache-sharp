@@ -114,7 +114,7 @@ namespace mustache
                 }
                 matches.Add(getUnknownTagRegex());
                 string match = "{{(" + String.Join("|", matches) + ")}}";
-                regex = new Regex(match, RegexOptions.Compiled);
+                regex = new Regex(match);
                 _regexLookup.Add(definition.Name, regex);
             }
             return regex;
