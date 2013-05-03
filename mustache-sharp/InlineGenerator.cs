@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace mustache
+namespace Mustache
 {
     /// <summary>
     /// Generates the text for a tag that only exists on a single line.

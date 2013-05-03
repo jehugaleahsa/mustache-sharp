@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 
-namespace mustache
+namespace Mustache
 {
     /// <summary>
     /// Generates text by substituting an object's values for placeholders.

@@ -1,7 +1,7 @@
 ﻿using System;
-using mustache.Properties;
+using Mustache.Properties;
 
-namespace mustache
+namespace Mustache
 {
     /// <summary>
     /// Defines a parameter belonging to a custom tag.

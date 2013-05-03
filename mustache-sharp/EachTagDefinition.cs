@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 
-namespace mustache
+namespace Mustache
 {
     /// <summary>
     /// Defines a tag that can iterate over a collection of items and render

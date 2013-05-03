@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace mustache
+namespace Mustache
 {
     /// <summary>
     /// Generates a static block of text.

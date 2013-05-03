@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace mustache
+namespace Mustache
 {
     /// <summary>
     /// Builds text by combining the output of other generators.

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace mustache
+namespace Mustache
 {
     /// <summary>
     /// Associates parameters to their argument values.

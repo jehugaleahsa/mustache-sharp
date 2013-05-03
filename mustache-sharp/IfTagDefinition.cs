@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace mustache
+namespace Mustache
 {
     /// <summary>
     /// Defines a tag that renders its content depending on the truthyness

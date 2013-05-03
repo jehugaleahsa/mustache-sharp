@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace mustache
+namespace Mustache
 {
     /// <summary>
     /// Defines a pseudo tag that wraps the entire content of a format string.

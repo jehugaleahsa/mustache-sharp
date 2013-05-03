@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
 
-namespace mustache
+namespace Mustache
 {
     /// <summary>
     /// Provides methods for creating instances of PropertyDictionary.

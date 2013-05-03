@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace mustache
+namespace Mustache
 {
     /// <summary>
     /// Removes unnecessary lines from the final output.

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace mustache
+namespace Mustache
 {
     /// <summary>
     /// Defines a tag that renders its content if all preceding if and elif tags.

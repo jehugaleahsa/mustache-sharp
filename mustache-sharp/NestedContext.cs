@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace mustache
+namespace Mustache
 {
     /// <summary>
     /// Holds the objects to use when processing a child context of another tag.

@@ -9,7 +9,7 @@
     <ProjectGuid>{7F607362-0680-4751-B1DC-621219294AE3}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>mustache.test</RootNamespace>
+    <RootNamespace>Mustache.Test</RootNamespace>
     <AssemblyName>mustache-sharp.test</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

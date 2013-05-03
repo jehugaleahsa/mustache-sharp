@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace mustache
+namespace Mustache
 {
     /// <summary>
     /// Defines a tag that conditionally renders its content if preceding if and elif tags fail.

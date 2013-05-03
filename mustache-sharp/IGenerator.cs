@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace mustache
+namespace Mustache
 {
     /// <summary>
     /// Applies the values of an object to the format plan, generating a string.

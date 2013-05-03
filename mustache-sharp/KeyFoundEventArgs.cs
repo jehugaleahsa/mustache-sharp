@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace mustache
+namespace Mustache
 {
     /// <summary>
     /// Holds the information about a key that was found.

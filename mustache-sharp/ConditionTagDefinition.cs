@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace mustache
+namespace Mustache
 {
     /// <summary>
     /// Defines a tag that conditionally prints its content.

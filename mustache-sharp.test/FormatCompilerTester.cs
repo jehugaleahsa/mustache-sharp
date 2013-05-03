@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace mustache.test
+namespace Mustache.Test
 {
     /// <summary>
     /// Tests the FormatParser class.

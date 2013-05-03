@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace mustache
+namespace Mustache
 {
     /// <summary>
     /// Holds the information needed to handle a missing key.

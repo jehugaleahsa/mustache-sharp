@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using mustache.Properties;
+using Mustache.Properties;
 
-namespace mustache
+namespace Mustache
 {
     /// <summary>
     /// Represents a scope of keys.

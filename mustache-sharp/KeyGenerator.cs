@@ -2,7 +2,7 @@
 using System.IO;
 using System.Text;
 
-namespace mustache
+namespace Mustache
 {
     /// <summary>
     /// Substitutes a key placeholder with the textual representation of the associated object.

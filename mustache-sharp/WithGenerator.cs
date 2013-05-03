@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace mustache
+namespace Mustache
 {
     /// <summary>
     /// Defines a tag that changes the scope to the object passed as an argument.

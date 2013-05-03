@@ -1,7 +1,7 @@
 ﻿using System;
-using mustache.Properties;
+using Mustache.Properties;
 
-namespace mustache
+namespace Mustache
 {
     /// <summary>
     /// Holds the information descibing a key that is found in a template.

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 
-namespace mustache
+namespace Mustache
 {
     /// <summary>
     /// Provides utility methods that require regular expressions.

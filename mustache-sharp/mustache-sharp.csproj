@@ -8,7 +8,7 @@
     <ProjectGuid>{D71B378F-A4BA-4263-A4F0-07A49A0C528D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>mustache</RootNamespace>
+    <RootNamespace>Mustache</RootNamespace>
     <AssemblyName>mustache-sharp</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using mustache.Properties;
+using Mustache.Properties;
 using System.IO;
 
-namespace mustache
+namespace Mustache
 {
     /// <summary>
     /// Defines the attributes of a custom tag.

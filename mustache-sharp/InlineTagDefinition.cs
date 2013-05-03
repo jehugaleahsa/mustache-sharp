@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace mustache
+namespace Mustache
 {
     /// <summary>
     /// Defines a tag that cannot contain inner text.

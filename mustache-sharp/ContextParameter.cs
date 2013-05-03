@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace mustache
+namespace Mustache
 {
     /// <summary>
     /// Holds information describing a parameter that creates a new context.

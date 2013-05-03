@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace mustache
+namespace Mustache
 {
     /// <summary>
     /// Represents a context within a template.

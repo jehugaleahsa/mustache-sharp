@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using mustache.Properties;
+using Mustache.Properties;
 
-namespace mustache
+namespace Mustache
 {
     /// <summary>
     /// Parses a format string and returns a text generator.
