@@ -1096,5 +1096,20 @@ Your order total was: $7.50";
         }
 
         #endregion
+
+        #region Unknown Tags
+
+        /// <summary>
+        /// If an unknown tag is encountered, an exception should be thrown.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(FormatException))]
+        public void TestCompile_UnknownTag()
+        {
+            FormatCompiler compiler = new FormatCompiler();
+            compiler.Compile("{{#split Names}}");
+        }
+
+        #endregion
     }
 }

@@ -260,7 +260,9 @@ namespace Mustache
                 }
                 else if (match.Groups["unknown"].Success)
                 {
-                    throw new FormatException(Resources.UnknownTag);
+                    string tagName = match.Value;
+                    string message = String.Format(Resources.UnknownTag, tagName);
+                    throw new FormatException(message);
                 }
             }
             return formatIndex;

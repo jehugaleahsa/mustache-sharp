@@ -136,7 +136,7 @@
     <value>Expected a matching {0} tag but none was found.</value>
   </data>
   <data name="UnknownTag" xml:space="preserve">
-    <value>Encountered an unknown tag. It was either not registered or exists in a different context.</value>
+    <value>Encountered an unknown tag: {0}. It was either not registered or exists in a different context.</value>
   </data>
   <data name="WrongNumberOfArguments" xml:space="preserve">
     <value>The wrong number of arguments were passed to an {0} tag.</value>
