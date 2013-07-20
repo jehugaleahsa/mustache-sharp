@@ -72,7 +72,7 @@ namespace Mustache
             }
         }
 
-        void IGenerator.GetText(KeyScope scope, TextWriter writer)
+        void IGenerator.GetText(KeyScope scope, TextWriter writer, object contextData)
         {
             Dictionary<string, object> arguments = _arguments.GetArguments(scope);
             IEnumerable<NestedContext> contexts = _definition.GetChildContext(writer, scope, arguments);
@@ -93,7 +93,7 @@ namespace Mustache
             {
                 foreach (IGenerator generator in generators)
                 {
-                    generator.GetText(context.KeyScope ?? scope, context.Writer ?? writer);
+                    generator.GetText(context.KeyScope ?? scope, context.Writer ?? writer, context.Data);
                     if (context.WriterNeedsConsidated)
                     {
                         writer.Write(_definition.ConsolidateWriter(context.Writer ?? writer, arguments));

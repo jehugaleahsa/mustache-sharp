@@ -45,5 +45,10 @@ namespace Mustache
             get;
             set;
         }
+
+        /// <summary>
+        /// Gets or sets data associated with the context.
+        /// </summary>
+        public object Data { get; set; }
     }
 }

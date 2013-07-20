@@ -23,10 +23,10 @@ namespace Mustache
             _arguments = arguments;
         }
 
-        void IGenerator.GetText(KeyScope scope, TextWriter writer)
+        void IGenerator.GetText(KeyScope scope, TextWriter writer, object contextData)
         {
             Dictionary<string, object> arguments = _arguments.GetArguments(scope);
-            _definition.GetText(writer, arguments);
+            _definition.GetText(writer, arguments, contextData);
         }
     }
 }

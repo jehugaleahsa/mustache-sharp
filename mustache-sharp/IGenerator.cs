@@ -13,7 +13,8 @@ namespace Mustache
         /// </summary>
         /// <param name="scope">The current lexical scope of the keys.</param>
         /// <param name="writer">The text writer to send all text to.</param>
+        /// <param name="contextData">The data associated to the context.</param>
         /// <returns>The generated text.</returns>
-        void GetText(KeyScope scope, TextWriter writer);
+        void GetText(KeyScope scope, TextWriter writer, object contextData);
     }
 }

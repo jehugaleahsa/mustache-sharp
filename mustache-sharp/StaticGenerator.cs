@@ -46,7 +46,7 @@ namespace Mustache
             }
         }
 
-        void IGenerator.GetText(KeyScope scope, TextWriter writer)
+        void IGenerator.GetText(KeyScope scope, TextWriter writer, object contextData)
         {
             writer.Write(Value);
         }

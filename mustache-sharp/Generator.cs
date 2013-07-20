@@ -80,7 +80,7 @@ namespace Mustache
                 scope.KeyNotFound += handler;
             }
             StringWriter writer = new StringWriter(provider);
-            _generator.GetText(scope, writer);
+            _generator.GetText(scope, writer, null);
             return writer.ToString();
         }
     }

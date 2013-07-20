@@ -990,6 +990,20 @@ Last";
             Assert.AreEqual("Before123After", result, "The wrong text was generated.");
         }
 
+        /// <summary>
+        /// We can use the index tag to get the current iteration.
+        /// </summary>
+        [TestMethod]
+        public void TestCompile_Each_Index_PrintsIndexOfItem()
+        {
+            FormatCompiler parser = new FormatCompiler();
+            const string format = "<ul>{{#each this}}<li value=\"{{this}}\">Item {{#index}}</li>{{/each}}</ul>";
+            Generator generator = parser.Compile(format);
+            string result = generator.Render(new int[] { 1, 2, 3 });
+            const string expected = @"<ul><li value=""1"">Item 0</li><li value=""2"">Item 1</li><li value=""3"">Item 2</li></ul>";
+            Assert.AreEqual(expected, result, "The wrong text was generated.");
+        }
+
         #endregion
 
         #region With
@@ -1038,7 +1052,7 @@ Last";
                 return new TagParameter[] { new TagParameter("param") { IsRequired = false, DefaultValue = 123 } };
             }
 
-            public override void GetText(TextWriter writer, Dictionary<string, object> arguments)
+            public override void GetText(TextWriter writer, Dictionary<string, object> arguments, object contextData)
             {
                 writer.Write(arguments["param"]);
             }

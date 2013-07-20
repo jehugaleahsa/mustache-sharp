@@ -86,6 +86,16 @@ If you need to print out a block of text for each item in a collection, use the 
     {{/each}}
     
 Within the context of the **each** block, the scope changes to the current item. So, in the example above, `Name` would refer to a property in the `Customer` class.
+
+Additionally, you can access the current index into the collection being enumerated using the **index** tag.
+
+    <ul>
+    {{#each Items}}
+        <li class="list-item{{#index}}" value="{{Value}}">{{Description}}</li>
+    {{/each}}
+    </ul>
+    
+This will build an HTML list, building a list of items with `Description` and `Value` properties. Additionally, the `index` tag is used to create a CSS class with increasing numbers.
     
 ## The 'with' tag
 Within a block of text, you may refer to a same top-level placeholder over and over. You can cut down the amount of text by using the **with** tag.

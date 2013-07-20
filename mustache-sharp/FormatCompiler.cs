@@ -33,6 +33,8 @@ namespace Mustache
             _tagLookup.Add(elseDefinition.Name, elseDefinition);
             EachTagDefinition eachDefinition = new EachTagDefinition();
             _tagLookup.Add(eachDefinition.Name, eachDefinition);
+            IndexTagDefinition indexDefinition = new IndexTagDefinition();
+            _tagLookup.Add(indexDefinition.Name, indexDefinition);
             WithTagDefinition withDefinition = new WithTagDefinition();
             _tagLookup.Add(withDefinition.Name, withDefinition);
         }

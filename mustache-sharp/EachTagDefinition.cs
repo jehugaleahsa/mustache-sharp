@@ -54,9 +54,11 @@ namespace Mustache
             {
                 yield break;
             }
+            int index = 0;
             foreach (object item in enumerable)
             {
-                yield return new NestedContext() { KeyScope = scope.CreateChildScope(item), Writer = writer };
+                yield return new NestedContext() { KeyScope = scope.CreateChildScope(item), Writer = writer, Data = index };
+                ++index;
             }
         }
 
@@ -66,7 +68,7 @@ namespace Mustache
         /// <returns>The name of the tags that are in scope.</returns>
         protected override IEnumerable<string> GetChildTags()
         {
-            return new string[] { };
+            return new string[] { "index" };
         }
 
         /// <summary>

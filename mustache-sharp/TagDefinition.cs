@@ -152,7 +152,8 @@ namespace Mustache
         /// </summary>
         /// <param name="writer">The text writer to write to.</param>
         /// <param name="arguments">The arguments passed to the tag.</param>
-        public virtual void GetText(TextWriter writer, Dictionary<string, object> arguments)
+        /// <param name="contextData">The data associated to the context.</param>
+        public virtual void GetText(TextWriter writer, Dictionary<string, object> arguments, object contextData)
         {
         }
 
