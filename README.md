@@ -13,18 +13,21 @@ Generating text has always been a chore. Either you're concatenating strings lik
 
 Introducing [handlebars.js](http://handlebarsjs.com/)... If you've needed to generate any HTML templates, **handlebars.js** is a really awesome tool. Not only does it support an `if` and `each` tag, it lets you define your own tags! It also makes it easy to reference nested values `{{Customer.Address.ZipCode}}`.
 
-**mustache#** brings the power of **handlebars.js** to .NET and then takes it a little bit further. Not only does it support the same tags, it also handles whitespace intelligently. **mustache#** will automatically remove lines that contain nothing but whitespace and tags. This allows you to make text templates that are easy to read.
+**mustache#** brings the power of **handlebars.js** to .NET and then takes it a little bit further. It is geared towards building ordinary text documents, rather than just HTML. It differs from **handlebars.js** in the way it handles newlines. With **mustache#**, you explicitly indicate when you want newlines - actual newlines are ignored.
 
     Hello, {{Customer.Name}}
-    
+    {{#newline}}
+    {{#newline}}
     {{#with Order}}
     {{#if LineItems}}
     Here is a summary of your previous order:
-    
+    {{#newline}}
+    {{#newline}}
     {{#each LineItems}}
         {{ProductName}}: {{UnitPrice:C}} x {{Quantity}}
+        {{#newline}}
     {{/each}}
-    
+    {{#newline}}
     Your total was {{Total:C}}.
     {{#else}}
     You do not have any recent purchases.
