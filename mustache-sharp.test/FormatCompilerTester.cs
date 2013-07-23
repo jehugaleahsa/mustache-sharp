@@ -60,11 +60,14 @@ namespace Mustache.Test
         public void TestCompile_OutputNewLineBlank_PrintsBothLines()
         {
             FormatCompiler compiler = new FormatCompiler();
-            const string format = @"Hello
+            const string format = @"Hello{{#newline}}
+    ";
+
+            const string expected = @"Hello
     ";
             Generator generator = compiler.Compile(format);
             string result = generator.Render(null);
-            Assert.AreEqual(format, result, "The wrong text was generated.");
+            Assert.AreEqual(expected, result, "The wrong text was generated.");
         }
 
         #endregion
@@ -268,7 +271,7 @@ namespace Mustache.Test
         public void TestCompile_OutputNewLineOutput_PrintsBothLines()
         {
             FormatCompiler compiler = new FormatCompiler();
-            const string format = @"{{this}}
+            const string format = @"{{this}}{{#newline}}
 After";
             Generator generator = compiler.Compile(format);
             string result = generator.Render("Content");
@@ -285,7 +288,7 @@ After";
         public void TestCompile_EmptyNewLineKey_PrintsBothLines()
         {
             FormatCompiler compiler = new FormatCompiler();
-            const string format = @"
+            const string format = @"{{#newline}}
 {{this}}";
             Generator generator = compiler.Compile(format);
             string result = generator.Render("Content");
@@ -318,7 +321,7 @@ Content";
         public void TestCompile_KeyKey_PrintsBothLines()
         {
             FormatCompiler compiler = new FormatCompiler();
-            const string format = @"{{this}}
+            const string format = @"{{this}}{{#newline}}
 {{this}}";
             Generator generator = compiler.Compile(format);
             string result = generator.Render("Content");
@@ -432,7 +435,7 @@ Content";
             const string format = "{{#! comment }}    {{#! comment }}";
             Generator generator = compiler.Compile(format);
             string result = generator.Render(new object());
-            Assert.AreEqual(String.Empty, result, "The wrong text was generated.");
+            Assert.AreEqual("    ", result, "The wrong text was generated.");
         }
 
         /// <summary>
@@ -465,12 +468,12 @@ Content";
         /// If a comment makes up the entire format string, the nothing should be printed out.
         /// </summary>
         [TestMethod]
-        public void TestCompile_CommentAloneOnlyLine__PrintsEmpty()
+        public void TestCompile_CommentAloneOnlyLine_PrintsSurroundingSpace()
         {
             FormatCompiler compiler = new FormatCompiler();
             Generator generator = compiler.Compile("    {{#! comment }}    ");
             string result = generator.Render(null);
-            Assert.AreEqual(String.Empty, result, "The wrong text was generated.");
+            Assert.AreEqual("        ", result, "The wrong text was generated.");
         }
 
         /// <summary>
@@ -486,8 +489,7 @@ Content";
 After";
             Generator generator = compiler.Compile(format);
             string result = generator.Render(new object());
-            const string expected = @"Before
-After";
+            const string expected = @"Before        After";
             Assert.AreEqual(expected, result, "The wrong text was generated.");
         }
 
@@ -504,8 +506,7 @@ After";
 After";
             Generator generator = compiler.Compile(format);
             string result = generator.Render(new object());
-            const string expected = @"Before
-After";
+            const string expected = @"Before            After";
             Assert.AreEqual(expected, result, "The wrong text was generated.");
         }
 
@@ -520,14 +521,13 @@ After";
             const string format = @"Before
     {{#! This is a comment }}    
     {{#! This is another comment }}    
-
+    {{#newline}}
     {{#! This is the final comment }}
 After";
             Generator generator = compiler.Compile(format);
             string result = generator.Render(new object());
-            const string expected = @"Before
-
-After";
+            const string expected = @"Before                    
+    After";
             Assert.AreEqual(expected, result, "The wrong text was generated.");
         }
 
@@ -543,9 +543,7 @@ After";
 After";
             Generator generator = compiler.Compile(format);
             string result = generator.Render(new object());
-            const string expected = @"Before
-    Extra
-After";
+            const string expected = @"Before    ExtraAfter";
             Assert.AreEqual(expected, result, "The wrong text was generated.");
         }
 
@@ -561,7 +559,7 @@ After";
         ";
             Generator generator = compiler.Compile(format);
             string result = generator.Render(null);
-            Assert.AreEqual("        ", result, "The wrong text was generated.");
+            Assert.AreEqual("            ", result, "The wrong text was generated.");
         }
 
         /// <summary>
@@ -576,7 +574,7 @@ After";
 After";
             Generator generator = compiler.Compile(format);
             string result = generator.Render(null);
-            Assert.AreEqual("After", result, "The wrong text was generated.");
+            Assert.AreEqual("    After", result, "The wrong text was generated.");
         }
 
         /// <summary>
@@ -618,8 +616,8 @@ First
         public void TestCompile_ContentNewLineCommentNewLineContentNewLineComment_PrintsContent()
         {
             FormatCompiler compiler = new FormatCompiler();
-            const string format = @"First
-    {{#! comment }}
+            const string format = @"First{{#newline}}
+{{#! comment }}
 Middle
 {{#! comment }}";
             Generator generator = compiler.Compile(format);
@@ -795,6 +793,7 @@ Content{{/if}}";
             const string format = @"{{#if this}}
 First
 {{/if}}{{#if this}}
+{{#newline}}
 Last
 {{/if}}";
             Generator generator = parser.Compile(format);
@@ -832,6 +831,7 @@ Content
             const string format = @"{{#if this}}
 {{/if}}
 First
+{{#newline}}
 {{#if this}}
 {{/if}}
 Last";
@@ -1005,10 +1005,11 @@ Last";
         }
 
         /// <summary>
-        /// 
+        /// A bug was found where the index tag was trying to read the arguments for the next tag.
+        /// This was caused by the index tag chewing up more of the input than it was supposed to.
         /// </summary>
         [TestMethod]
-        public void TestCompile_Each_LoopOverCollectionTwice()
+        public void TestCompile_Each_ContextAfterIndexTag()
         {
             List<TestObject> objects = new List<TestObject>();
             objects.Add(new TestObject { Name = "name1", Val = "val1" });
@@ -1016,11 +1017,10 @@ Last";
             objects.Add(new TestObject { Name = "name3", Val = "val3" });
 
             const string template = @"{{#each this}}
-Item Number: {{#index}}<br />
+Item Number: {{#index}}<br />{{#newline}}
 {{/each}}
 {{#each this}}
-Item Number: foo<br />
-
+Item Number: foo<br />{{#newline}}
 {{/each}}";
 
             FormatCompiler compiler = new FormatCompiler();
@@ -1111,15 +1111,17 @@ Item Number: foo<br />
         {
             FormatCompiler compiler = new FormatCompiler();
             const string format = @"Hello {{Customer.FirstName}}:
-
+{{#newline}}
+{{#newline}}
 {{#with Order}}
 {{#if LineItems}}
 Below are your order details:
-
+{{#newline}}
+{{#newline}}
 {{#each LineItems}}
-    {{Name}}: {{UnitPrice:C}} x {{Quantity}}
+    {{Name}}: {{UnitPrice:C}} x {{Quantity}}{{#newline}}
 {{/each}}
-
+{{#newline}}
 Your order total was: {{Total:C}}
 {{/if}}
 {{/with}}";

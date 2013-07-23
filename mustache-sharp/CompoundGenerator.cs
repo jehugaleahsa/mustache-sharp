@@ -11,7 +11,7 @@ namespace Mustache
     {
         private readonly TagDefinition _definition;
         private readonly ArgumentCollection _arguments;
-        private readonly LinkedList<IGenerator> _primaryGenerators;
+        private readonly List<IGenerator> _primaryGenerators;
         private IGenerator _subGenerator;
 
         /// <summary>
@@ -23,7 +23,7 @@ namespace Mustache
         {
             _definition = definition;
             _arguments = arguments;
-            _primaryGenerators = new LinkedList<IGenerator>();
+            _primaryGenerators = new List<IGenerator>();
         }
 
         /// <summary>
@@ -47,19 +47,6 @@ namespace Mustache
             addGenerator(generator, isSubGenerator);
         }
 
-        /// <summary>
-        /// Creates a StaticGenerator from the given value and adds it.
-        /// </summary>
-        /// <param name="generators">The static generators to add.</param>
-        public void AddStaticGenerators(IEnumerable<StaticGenerator> generators)
-        {
-            foreach (StaticGenerator generator in generators)
-            {
-                LinkedListNode<IGenerator> node = _primaryGenerators.AddLast(generator);
-                generator.Node = node;
-            }
-        }
-
         private void addGenerator(IGenerator generator, bool isSubGenerator)
         {
             if (isSubGenerator)
@@ -68,7 +55,7 @@ namespace Mustache
             }
             else
             {
-                _primaryGenerators.AddLast(generator);
+                _primaryGenerators.Add(generator);
             }
         }
 
@@ -76,17 +63,17 @@ namespace Mustache
         {
             Dictionary<string, object> arguments = _arguments.GetArguments(scope);
             IEnumerable<NestedContext> contexts = _definition.GetChildContext(writer, scope, arguments);
-            LinkedList<IGenerator> generators;
+            List<IGenerator> generators;
             if (_definition.ShouldGeneratePrimaryGroup(arguments))
             {
                 generators = _primaryGenerators;
             }
             else
             {
-                generators = new LinkedList<IGenerator>();
+                generators = new List<IGenerator>();
                 if (_subGenerator != null)
                 {
-                    generators.AddLast(_subGenerator);
+                    generators.Add(_subGenerator);
                 }
             }
             foreach (NestedContext context in contexts)

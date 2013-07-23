@@ -9,20 +9,14 @@ namespace Mustache
     /// </summary>
     internal sealed class StaticGenerator : IGenerator
     {
+        private readonly string value;
+
         /// <summary>
         /// Initializes a new instance of a StaticGenerator.
         /// </summary>
-        public StaticGenerator()
+        public StaticGenerator(string value)
         {
-        }
-
-        /// <summary>
-        /// Gets or sets the linked list node containing the current generator.
-        /// </summary>
-        public LinkedListNode<IGenerator> Node
-        {
-            get;
-            set;
+            this.value = value.Replace(Environment.NewLine, String.Empty);
         }
 
         /// <summary>
@@ -30,20 +24,7 @@ namespace Mustache
         /// </summary>
         public string Value
         {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Removes the static text from the final output.
-        /// </summary>
-        public void Prune()
-        {
-            if (Node != null)
-            {
-                Node.List.Remove(Node);
-                Node = null;
-            }
+            get { return value; }
         }
 
         void IGenerator.GetText(KeyScope scope, TextWriter writer, object contextData)

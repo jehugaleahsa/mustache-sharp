@@ -37,6 +37,8 @@ namespace Mustache
             _tagLookup.Add(indexDefinition.Name, indexDefinition);
             WithTagDefinition withDefinition = new WithTagDefinition();
             _tagLookup.Add(withDefinition.Name, withDefinition);
+            NewlineTagDefinition newlineDefinition = new NewlineTagDefinition();
+            _tagLookup.Add(newlineDefinition.Name, newlineDefinition);
         }
 
         /// <summary>
@@ -75,12 +77,10 @@ namespace Mustache
                 throw new ArgumentNullException("format");
             }
             CompoundGenerator generator = new CompoundGenerator(_masterDefinition, new ArgumentCollection());
-            Trimmer trimmer = new Trimmer();
             List<Context> context = new List<Context>() { new Context(_masterDefinition.Name, new ContextParameter[0]) };
-            int formatIndex = buildCompoundGenerator(_masterDefinition, context, generator, trimmer, format, 0);
+            int formatIndex = buildCompoundGenerator(_masterDefinition, context, generator, format, 0);
             string trailing = format.Substring(formatIndex);
-            generator.AddStaticGenerators(trimmer.RecordText(trailing, false, false));
-            trimmer.Trim();
+            generator.AddGenerator(new StaticGenerator(trailing));
             return new Generator(generator);
         }
 
@@ -171,7 +171,6 @@ namespace Mustache
             TagDefinition tagDefinition,
             List<Context> context,
             CompoundGenerator generator,
-            Trimmer trimmer,
             string format, int formatIndex)
         {
             while (true)
@@ -192,7 +191,7 @@ namespace Mustache
 
                 if (match.Groups["key"].Success)
                 {
-                    generator.AddStaticGenerators(trimmer.RecordText(leading, true, true));
+                    generator.AddGenerator(new StaticGenerator(leading));
                     formatIndex = match.Index + match.Length;
                     string key = match.Groups["key"].Value;
                     string alignment = match.Groups["alignment"].Value;
@@ -217,7 +216,7 @@ namespace Mustache
                     }
                     if (nextDefinition.HasContent)
                     {
-                        generator.AddStaticGenerators(trimmer.RecordText(leading, true, false));
+                        generator.AddGenerator(new StaticGenerator(leading));
                         ArgumentCollection arguments = getArguments(nextDefinition, match);
                         CompoundGenerator compoundGenerator = new CompoundGenerator(nextDefinition, arguments);
                         IEnumerable<TagParameter> contextParameters = nextDefinition.GetChildContextParameters();
@@ -227,7 +226,7 @@ namespace Mustache
                             ContextParameter[] parameters = contextParameters.Select(p => new ContextParameter(p.Name, arguments.GetKey(p))).ToArray();
                             context.Add(new Context(nextDefinition.Name, parameters));
                         }
-                        formatIndex = buildCompoundGenerator(nextDefinition, context, compoundGenerator, trimmer, format, formatIndex);
+                        formatIndex = buildCompoundGenerator(nextDefinition, context, compoundGenerator, format, formatIndex);
                         generator.AddGenerator(nextDefinition, compoundGenerator);
                         if (hasContext)
                         {
@@ -236,7 +235,7 @@ namespace Mustache
                     }
                     else
                     {
-                        generator.AddStaticGenerators(trimmer.RecordText(leading, true, true));
+                        generator.AddGenerator(new StaticGenerator(leading));
                         ArgumentCollection arguments = getArguments(nextDefinition, match);
                         InlineGenerator inlineGenerator = new InlineGenerator(nextDefinition, arguments);
                         generator.AddGenerator(inlineGenerator);
@@ -244,7 +243,7 @@ namespace Mustache
                 }
                 else if (match.Groups["close"].Success)
                 {
-                    generator.AddStaticGenerators(trimmer.RecordText(leading, true, false));
+                    generator.AddGenerator(new StaticGenerator(leading));
                     string tagName = match.Groups["name"].Value;
                     TagDefinition nextDefinition = _tagLookup[tagName];
                     formatIndex = match.Index;
@@ -256,7 +255,7 @@ namespace Mustache
                 }
                 else if (match.Groups["comment"].Success)
                 {
-                    generator.AddStaticGenerators(trimmer.RecordText(leading, true, false));
+                    generator.AddGenerator(new StaticGenerator(leading));
                     formatIndex = match.Index + match.Length;
                 }
                 else if (match.Groups["unknown"].Success)
