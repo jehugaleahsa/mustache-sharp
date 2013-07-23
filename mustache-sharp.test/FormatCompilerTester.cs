@@ -1004,6 +1004,47 @@ Last";
             Assert.AreEqual(expected, result, "The wrong text was generated.");
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        [TestMethod]
+        public void TestCompile_Each_LoopOverCollectionTwice()
+        {
+            List<TestObject> objects = new List<TestObject>();
+            objects.Add(new TestObject { Name = "name1", Val = "val1" });
+            objects.Add(new TestObject { Name = "name2", Val = "val2" });
+            objects.Add(new TestObject { Name = "name3", Val = "val3" });
+
+            const string template = @"{{#each this}}
+Item Number: {{#index}}<br />
+{{/each}}
+{{#each this}}
+Item Number: foo<br />
+
+{{/each}}";
+
+            FormatCompiler compiler = new FormatCompiler();
+            Generator generator = compiler.Compile(template);
+            string actual = generator.Render(objects);
+
+            const string expected = @"Item Number: 0<br />
+Item Number: 1<br />
+Item Number: 2<br />
+Item Number: foo<br />
+Item Number: foo<br />
+Item Number: foo<br />
+";
+
+            Assert.AreEqual(expected, actual, "The wrong text was found.");
+        }
+
+        public class TestObject
+        {
+            public String Name { get; set; }
+
+            public String Val { get; set; }
+        }
+
         #endregion
 
         #region With

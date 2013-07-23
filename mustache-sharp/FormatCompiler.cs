@@ -237,8 +237,7 @@ namespace Mustache
                     else
                     {
                         generator.AddStaticGenerators(trimmer.RecordText(leading, true, true));
-                        Match nextMatch = findNextTag(nextDefinition, format, formatIndex);
-                        ArgumentCollection arguments = getArguments(nextDefinition, nextMatch);
+                        ArgumentCollection arguments = getArguments(nextDefinition, match);
                         InlineGenerator inlineGenerator = new InlineGenerator(nextDefinition, arguments);
                         generator.AddGenerator(inlineGenerator);
                     }
