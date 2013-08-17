@@ -42,7 +42,7 @@ namespace Mustache
             return formatBuilder.ToString();
         }
 
-        void IGenerator.GetText(KeyScope scope, TextWriter writer, object contextData)
+        void IGenerator.GetText(Scope scope, TextWriter writer, Scope context)
         {
             object value = scope.Find(_key);
             writer.Write(_format, value);

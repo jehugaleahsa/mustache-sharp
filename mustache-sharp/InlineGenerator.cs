@@ -5,7 +5,7 @@ using System.IO;
 namespace Mustache
 {
     /// <summary>
-    /// Generates the text for a tag that only exists on a single line.
+    /// Generates the text for a tag that is replaced with its generated text.
     /// </summary>
     internal sealed class InlineGenerator : IGenerator
     {
@@ -23,10 +23,18 @@ namespace Mustache
             _arguments = arguments;
         }
 
-        void IGenerator.GetText(KeyScope scope, TextWriter writer, object contextData)
+        void IGenerator.GetText(Scope scope, TextWriter writer, Scope context)
         {
-            Dictionary<string, object> arguments = _arguments.GetArguments(scope);
-            _definition.GetText(writer, arguments, contextData);
+            Dictionary<string, object> arguments;
+            if (_definition.IsSetter)
+            {
+                arguments = _arguments.GetArguments();   
+            }
+            else
+            {
+                arguments = _arguments.GetArguments(scope, context);
+            }            
+            _definition.GetText(writer, arguments, context);
         }
     }
 }

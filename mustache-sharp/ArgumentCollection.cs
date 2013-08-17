@@ -50,9 +50,10 @@ namespace Mustache
         /// <summary>
         /// Substitutes the key placeholders with their respective values.
         /// </summary>
-        /// <param name="scope">The current lexical scope.</param>
+        /// <param name="keyScope">The key/value pairs in the current lexical scope.</param>
+        /// <param name="contextScope">The key/value pairs in current context.</param>
         /// <returns>A dictionary associating the parameter name to the associated value.</returns>
-        public Dictionary<string, object> GetArguments(KeyScope scope)
+        public Dictionary<string, object> GetArguments(Scope keyScope, Scope contextScope)
         {
             Dictionary<string, object> arguments = new Dictionary<string,object>();
             foreach (KeyValuePair<TagParameter, string> pair in _argumentLookup)
@@ -62,11 +63,25 @@ namespace Mustache
                 {
                     value = pair.Key.DefaultValue;
                 }
+                else if (pair.Value.StartsWith("@"))
+                {
+                    value = contextScope.Find(pair.Value.Substring(1));
+                }
                 else
                 {
-                    value = scope.Find(pair.Value);
+                    value = keyScope.Find(pair.Value);
                 }
                 arguments.Add(pair.Key.Name, value);
+            }
+            return arguments;
+        }
+
+        public Dictionary<string, object> GetArguments()
+        {
+            Dictionary<string, object> arguments = new Dictionary<string, object>();
+            foreach (KeyValuePair<TagParameter, string> pair in _argumentLookup)
+            {
+                arguments.Add(pair.Key.Name, pair.Value);
             }
             return arguments;
         }

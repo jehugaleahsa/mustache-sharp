@@ -1093,7 +1093,7 @@ Item Number: foo<br />
                 return new TagParameter[] { new TagParameter("param") { IsRequired = false, DefaultValue = 123 } };
             }
 
-            public override void GetText(TextWriter writer, Dictionary<string, object> arguments, object contextData)
+            public override void GetText(TextWriter writer, Dictionary<string, object> arguments, Scope contextScope)
             {
                 writer.Write(arguments["param"]);
             }
@@ -1165,6 +1165,24 @@ Your order total was: $7.50";
         {
             FormatCompiler compiler = new FormatCompiler();
             compiler.Compile("{{#split Names}}");
+        }
+
+        #endregion
+
+        #region Context Variables
+
+        /// <summary>
+        /// We will use the index variable to determine whether or not to print out a line.
+        /// </summary>
+        [TestMethod]
+        public void TestCompile_CanUseContextVariablesToMakeDecisions()
+        {
+            FormatCompiler compiler = new FormatCompiler();
+            const string format = @"{{#each this}}{{#if @index}}{{#index}}{{/if}}{{/each}}";
+            Generator generator = compiler.Compile(format);
+            string actual = generator.Render(new int[] { 1, 1, 1, 1, });
+            string expected = "123";
+            Assert.AreEqual(expected, actual, "The numbers were not valid.");
         }
 
         #endregion

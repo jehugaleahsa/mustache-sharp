@@ -40,6 +40,7 @@
     <Compile Include="ContentTagDefinition.cs" />
     <Compile Include="Context.cs" />
     <Compile Include="ContextParameter.cs" />
+    <Compile Include="SetTagDefinition.cs" />
     <Compile Include="NewlineTagDefinition.cs" />
     <Compile Include="IndexTagDefinition.cs" />
     <Compile Include="KeyFoundEventArgs.cs" />
@@ -68,8 +69,8 @@
     <Compile Include="StaticGenerator.cs" />
     <Compile Include="TagDefinition.cs" />
     <Compile Include="TagParameter.cs" />
-    <Compile Include="KeyScope.cs" />
-    <Compile Include="WithGenerator.cs" />
+    <Compile Include="Scope.cs" />
+    <Compile Include="WithTagDefinition.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">

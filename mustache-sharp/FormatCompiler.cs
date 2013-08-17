@@ -39,6 +39,8 @@ namespace Mustache
             _tagLookup.Add(withDefinition.Name, withDefinition);
             NewlineTagDefinition newlineDefinition = new NewlineTagDefinition();
             _tagLookup.Add(newlineDefinition.Name, newlineDefinition);
+            SetTagDefinition setDefinition = new SetTagDefinition();
+            _tagLookup.Add(setDefinition.Name, setDefinition);
         }
 
         /// <summary>
@@ -150,9 +152,11 @@ namespace Mustache
             foreach (TagParameter parameter in definition.Parameters)
             {
                 regexBuilder.Append(@"(\s+?");
-                regexBuilder.Append(@"(?<argument>");
+                regexBuilder.Append(@"(?<argument>(");
                 regexBuilder.Append(RegexHelper.CompoundKey);
-                regexBuilder.Append(@"))");
+                regexBuilder.Append("|@");
+                regexBuilder.Append(RegexHelper.Key);
+                regexBuilder.Append(@")))");
                 if (!parameter.IsRequired)
                 {
                     regexBuilder.Append("?");

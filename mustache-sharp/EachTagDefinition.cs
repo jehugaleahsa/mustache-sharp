@@ -43,10 +43,14 @@ namespace Mustache
         /// Gets the context to use when building the inner text of the tag.
         /// </summary>
         /// <param name="writer">The text writer passed</param>
-        /// <param name="scope">The current scope.</param>
+        /// <param name="keyScope">The current scope.</param>
         /// <param name="arguments">The arguments passed to the tag.</param>
         /// <returns>The scope to use when building the inner text of the tag.</returns>
-        public override IEnumerable<NestedContext> GetChildContext(TextWriter writer, KeyScope scope, Dictionary<string, object> arguments)
+        public override IEnumerable<NestedContext> GetChildContext(
+            TextWriter writer, 
+            Scope keyScope, 
+            Dictionary<string, object> arguments,
+            Scope contextScope)
         {
             object value = arguments[collectionParameter];
             IEnumerable enumerable = value as IEnumerable;
@@ -57,7 +61,14 @@ namespace Mustache
             int index = 0;
             foreach (object item in enumerable)
             {
-                yield return new NestedContext() { KeyScope = scope.CreateChildScope(item), Writer = writer, Data = index };
+                NestedContext childContext = new NestedContext() 
+                { 
+                    KeyScope = keyScope.CreateChildScope(item), 
+                    Writer = writer, 
+                    ContextScope = contextScope.CreateChildScope(),
+                };
+                childContext.ContextScope.Set("index", index);
+                yield return childContext;
                 ++index;
             }
         }

@@ -13,16 +13,8 @@ namespace Mustache
         /// Initializes a new instance of an IndexTagDefinition.
         /// </summary>
         public IndexTagDefinition()
-            : base("index")
+            : base("index", true)
         {
-        }
-
-        /// <summary>
-        /// Gets whether the tag only exists within the scope of its parent.
-        /// </summary>
-        protected override bool GetIsContextSensitive()
-        {
-            return true;
         }
 
         /// <summary>
@@ -30,11 +22,14 @@ namespace Mustache
         /// </summary>
         /// <param name="writer">The writer to write the output to.</param>
         /// <param name="arguments">The arguments passed to the tag.</param>
-        /// <param name="contextData">Extra data passed along with the context.</param>
-        public override void GetText(TextWriter writer, Dictionary<string, object> arguments, object contextData)
+        /// <param name="contextScope">Extra data passed along with the context.</param>
+        public override void GetText(TextWriter writer, Dictionary<string, object> arguments, Scope contextScope)
         {
-            int index = (int)contextData;
-            writer.Write(index);
+            object index;
+            if (contextScope.TryFind("index", out index))
+            {
+                writer.Write(index);
+            }
         }
     }
 }

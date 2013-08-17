@@ -70,7 +70,7 @@ namespace Mustache
 
         private string render(IFormatProvider provider, object source)
         {
-            KeyScope scope = new KeyScope(source);
+            Scope scope = new Scope(source);
             foreach (EventHandler<KeyFoundEventArgs> handler in _foundHandlers)
             {
                 scope.KeyFound += handler;
@@ -80,7 +80,8 @@ namespace Mustache
                 scope.KeyNotFound += handler;
             }
             StringWriter writer = new StringWriter(provider);
-            _generator.GetText(scope, writer, null);
+            Scope contextScope = new Scope(new Dictionary<string, object>());
+            _generator.GetText(scope, writer, contextScope);
             return writer.ToString();
         }
     }

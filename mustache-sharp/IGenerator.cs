@@ -11,10 +11,10 @@ namespace Mustache
         /// <summary>
         /// Generates the text when applying the format plan.
         /// </summary>
-        /// <param name="scope">The current lexical scope of the keys.</param>
+        /// <param name="keyScope">The current lexical scope of the keys.</param>
         /// <param name="writer">The text writer to send all text to.</param>
-        /// <param name="contextData">The data associated to the context.</param>
+        /// <param name="contextScope">The data associated to the context.</param>
         /// <returns>The generated text.</returns>
-        void GetText(KeyScope scope, TextWriter writer, object contextData);
+        void GetText(Scope keyScope, TextWriter writer, Scope contextScope);
     }
 }

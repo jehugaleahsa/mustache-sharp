@@ -44,6 +44,16 @@ namespace Mustache
             get { return _tagName; }
         }
 
+        internal bool IsSetter
+        {
+            get { return GetIsSetter(); }
+        }
+
+        protected virtual bool GetIsSetter()
+        {
+            return false;
+        }
+
         /// <summary>
         /// Gets whether the tag is limited to the parent tag's context.
         /// </summary>
@@ -139,12 +149,22 @@ namespace Mustache
         /// Gets the context to use when building the inner text of the tag.
         /// </summary>
         /// <param name="writer">The text writer passed</param>
-        /// <param name="scope">The current scope.</param>
+        /// <param name="keyScope">The current key scope.</param>
         /// <param name="arguments">The arguments passed to the tag.</param>
         /// <returns>The scope to use when building the inner text of the tag.</returns>
-        public virtual IEnumerable<NestedContext> GetChildContext(TextWriter writer, KeyScope scope, Dictionary<string, object> arguments)
+        public virtual IEnumerable<NestedContext> GetChildContext(
+            TextWriter writer, 
+            Scope keyScope, 
+            Dictionary<string, object> arguments,
+            Scope contextScope)
         {
-            yield return new NestedContext() { KeyScope = scope, Writer = writer };
+            NestedContext context = new NestedContext() 
+            { 
+                KeyScope = keyScope, 
+                Writer = writer,
+                ContextScope = contextScope.CreateChildScope()
+            };
+            yield return context;
         }
 
         /// <summary>
@@ -152,8 +172,8 @@ namespace Mustache
         /// </summary>
         /// <param name="writer">The text writer to write to.</param>
         /// <param name="arguments">The arguments passed to the tag.</param>
-        /// <param name="contextData">The data associated to the context.</param>
-        public virtual void GetText(TextWriter writer, Dictionary<string, object> arguments, object contextData)
+        /// <param name="context">The data associated to the context.</param>
+        public virtual void GetText(TextWriter writer, Dictionary<string, object> arguments, Scope context)
         {
         }
 
