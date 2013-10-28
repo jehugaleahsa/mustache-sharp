@@ -28,7 +28,7 @@ namespace Mustache
             Dictionary<string, object> arguments;
             if (_definition.IsSetter)
             {
-                arguments = _arguments.GetArguments();   
+                arguments = _arguments.GetArgumentKeyNames();   
             }
             else
             {

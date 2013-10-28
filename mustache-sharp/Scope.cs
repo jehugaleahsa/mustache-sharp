@@ -45,6 +45,11 @@ namespace Mustache
         public event EventHandler<KeyNotFoundEventArgs> KeyNotFound;
 
         /// <summary>
+        /// Occurs when a setter is encountered and requires a value to be provided.
+        /// </summary>
+        public event EventHandler<ValueRequestEventArgs> ValueRequested;
+
+        /// <summary>
         /// Creates a child scope that searches for keys in a default dictionary of key/value pairs.
         /// </summary>
         /// <returns>The new child scope.</returns>
@@ -63,6 +68,7 @@ namespace Mustache
             Scope scope = new Scope(source, this);
             scope.KeyFound = KeyFound;
             scope.KeyNotFound = KeyNotFound;
+            scope.ValueRequested = ValueRequested;
             return scope;
         }
 
@@ -74,41 +80,43 @@ namespace Mustache
         /// <exception cref="System.Collections.Generic.KeyNotFoundException">A key with the given name could not be found.</exception>
         internal object Find(string name)
         {
-            string member = null;
-            object value = null;
-            if (tryFind(name, ref member, ref value))
+            SearchResults results = tryFind(name);
+            if (results.Found)
             {
-                onKeyFound(name, ref value);
+                return onKeyFound(name, results.Value);
+            }
+            object value;
+            if (onKeyNotFound(name, results.Member, out value))
+            {
                 return value;
             }
-            if (onKeyNotFound(name, member, ref value))
-            {
-                return value;
-            }
-            string message = String.Format(CultureInfo.CurrentCulture, Resources.KeyNotFound, member);
+            string message = String.Format(CultureInfo.CurrentCulture, Resources.KeyNotFound, results.Member);
             throw new KeyNotFoundException(message);
         }
 
-        private void onKeyFound(string name, ref object value)
+        private object onKeyFound(string name, object value)
         {
-            if (KeyFound != null)
+            if (KeyFound == null)
             {
-                KeyFoundEventArgs args = new KeyFoundEventArgs(name, value);
-                KeyFound(this, args);
-                value = args.Substitute;
+                return value;
             }
+            KeyFoundEventArgs args = new KeyFoundEventArgs(name, value);
+            KeyFound(this, args);
+            return args.Substitute;
         }
 
-        private bool onKeyNotFound(string name, string member, ref object value)
+        private bool onKeyNotFound(string name, string member, out object value)
         {
             if (KeyNotFound == null)
             {
+                value = null;
                 return false;
             }
             KeyNotFoundEventArgs args = new KeyNotFoundEventArgs(name, member);
             KeyNotFound(this, args);
             if (!args.Handled)
             {
+                value = null;
                 return false;
             }
             value = args.Substitute;
@@ -125,58 +133,110 @@ namespace Mustache
             return lookup;
         }
 
+        internal void Set(string key)
+        {
+            SearchResults results = tryFind(key);
+            if (ValueRequested == null)
+            {
+                set(results, results.Value);
+                return;
+            }
+
+            ValueRequestEventArgs e = new ValueRequestEventArgs();
+            if (results.Found)
+            {
+                e.Value = results.Value;
+            }
+
+            ValueRequested(this, e);
+            set(results, e.Value);
+        }
+
         internal void Set(string key, object value)
         {
-            IDictionary<string, object> lookup = toLookup(_source);
-            lookup[key] = value;
+            SearchResults results = tryFind(key);
+            set(results, value);
+        }
+
+        private void set(SearchResults results, object value)
+        {
+            // handle setting value in child scope
+            while (results.MemberIndex < results.Members.Length - 1)
+            {
+                Dictionary<string, object> context = new Dictionary<string, object>();
+                results.Value = context;
+                results.Lookup[results.Member] = results.Value;
+                results.Lookup = context;
+                ++results.MemberIndex;
+            }
+            results.Lookup[results.Member] = value;
         }
 
         public bool TryFind(string name, out object value)
         {
-            string member = null;
-            value = null;
-            return tryFind(name, ref member, ref value); 
+            SearchResults result = tryFind(name);
+            value = result.Value;
+            return result.Found;
         }
 
-        private bool tryFind(string name, ref string member, ref object value)
+        private SearchResults tryFind(string name)
         {
-            string[] names = name.Split('.');
-            member = names[0];
-            value = _source;
-            if (member != "this")
+            SearchResults results = new SearchResults();
+            results.Members = name.Split('.');
+            results.MemberIndex = 0;
+            if (results.Member == "this")
             {
-                if (!tryFindFirst(member, ref value))
-                {
-                    return false;
-                }
+                results.Found = true;
+                results.Lookup = toLookup(_source);
+                results.Value = _source;
             }
-            for (int index = 1; index < names.Length; ++index)
+            else
             {
-                IDictionary<string, object> context = toLookup(value);
-                member = names[index];
-                if (!context.TryGetValue(member, out value))
-                {
-                    value = null;
-                    return false;
-                }
+                tryFindFirst(results);
             }
-            return true;
+            for (int index = 1; results.Found && index < results.Members.Length; ++index)
+            {
+                results.Lookup = toLookup(results.Value);
+                results.MemberIndex = index;
+                object value;
+                results.Found = results.Lookup.TryGetValue(results.Member, out value);
+                results.Value = value;
+            }
+            return results;
         }
 
-        private bool tryFindFirst(string member, ref object value)
+        private void tryFindFirst(SearchResults results)
         {
-            IDictionary<string, object> lookup = toLookup(_source);
-            if (lookup.ContainsKey(member))
+            results.Lookup = toLookup(_source);
+            object value;
+            if (results.Lookup.TryGetValue(results.Member, out value))
             {
-                value = lookup[member];
-                return true;
+                results.Found = true;
+                results.Value = value;
+                return;
             }
             if (_parent == null)
             {
-                value = null;
-                return false;
+                results.Found = false;
+                results.Value = null;
+                return;
             }
-            return _parent.tryFindFirst(member, ref value);
+            _parent.tryFindFirst(results);
         }
+    }
+
+    internal class SearchResults
+    {
+        public IDictionary<string, object> Lookup { get; set; }
+
+        public string[] Members { get; set; }
+
+        public int MemberIndex { get; set; }
+
+        public string Member { get { return Members[MemberIndex]; } }
+
+        public bool Found { get; set; }
+
+        public object Value { get; set; }
     }
 }

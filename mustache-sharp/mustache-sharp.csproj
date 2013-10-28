@@ -70,6 +70,7 @@
     <Compile Include="TagDefinition.cs" />
     <Compile Include="TagParameter.cs" />
     <Compile Include="Scope.cs" />
+    <Compile Include="ValueRequestEventArgs.cs" />
     <Compile Include="WithTagDefinition.cs" />
   </ItemGroup>
   <ItemGroup>

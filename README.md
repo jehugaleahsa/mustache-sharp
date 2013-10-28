@@ -9,7 +9,7 @@ Generating text has always been a chore. Either you're concatenating strings lik
 
 [mustache](http://mustache.github.com/) is a really simple tool for generating text. .NET developers already had access to `String.Format` to accomplish pretty much the same thing. The only problem was that `String.Format` used indexes for placeholders: `Hello, {0}!!!`. **mustache** let you use meaningful names for placeholders: `Hello, {{name}}!!!`.
 
-**mustache** is a logic-less text generator. However, almost every time I've ever needed to generate text I needed to turn some of it on or off depending on a value. Not having the ability to turn things off usually meant going back to building my text in parts. 
+**mustache** is a logic-less text generator. However, almost every time I've ever needed to generate text I needed to turn some of it on or off depending on a value. Not having the ability to turn things off usually meant going back to building my text in parts.
 
 Introducing [handlebars.js](http://handlebarsjs.com/)... If you've needed to generate any HTML templates, **handlebars.js** is a really awesome tool. Not only does it support an `if` and `each` tag, it lets you define your own tags! It also makes it easy to reference nested values `{{Customer.Address.ZipCode}}`.
 
@@ -73,7 +73,7 @@ The **if** tag allows you to conditionally include a block of text.
 The block will be printed if:
 * The value is a non-empty string.
 * The value is a non-empty collection.
-* The value isn't the NULL char.
+* The value isn't the NUL char.
 * The value is a non-zero number.
 * The value evaluates to true.
 
@@ -116,6 +116,41 @@ Within a block of text, you may refer to a same top-level placeholder over and o
     {{/with}}
     
 Here, the `Customer.Address` property will be searched first for the placeholders. If a property cannot be found in the `Address` object, it will be searched for in the `Customer` object and on up.
+
+## The 'set' tag
+**mustache#** provides limited support for variables through use of the `set` tag. Once a variable is declared, it is visible to all child scopes. Multiple definitions of a variable with the same name cannot be created within the same scope. In fact, I highly recommend making variable names unique to the entire template just to prevent unexpected behavior!
+
+The following example will print out "EvenOddEvenOdd" by toggling a variable called `even`:
+
+    FormatCompiler compiler = new FormatCompiler();
+    const string format = @"{{#set even}}
+    {{#each this}}
+    {{#if @even}}
+    Even
+    {{#else}}
+    Odd
+    {{/if}}
+    {{#set even}}
+    {{/each}}";
+    Generator generator = compiler.Compile(format);
+    generator.ValueRequested += (sender, e) =>
+    {
+        e.Value = !(bool)(e.Value ?? false);
+    };
+    string result = generator.Render(new int[] { 0, 1, 2, 3 });
+    
+This code works by specifying a function to call whenever a value is needed for the `even` variable. The first time the function is called, `e.Value` will be null. All additional calls will hold the last known value of the variable.
+
+Notice that when you set the variable, you don't qualify it with an `@`. You only need the `@` when you request its value, like in the `if` statement above.
+    
+You should attempt to limit your use of variables within templates. Instead, perform as many up-front calculations as possible and make sure your view model closely represents its final appearance. In this case, it would make more sense to first convert the array into strings of "Even" and "Odd".
+
+    FormatCompiler compiler = new FormatCompiler();
+    const string format = @"{{#each this}}{{this}}{{/each}}";
+    Generator generator = compiler.Compile(format);
+    string result = generator.Render(new string[] { "Even", "Odd", "Even", "Odd" });
+
+This code is much easier to read and understand. It is also going to run significantly faster. In cases where you also need the original value, you can create an array containing objects with properties for the original value *and* `Even`/`Odd`.
 
 ## Defining Your Own Tags
 If you need to define your own tags, **mustache#** has everything you need.

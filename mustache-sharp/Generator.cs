@@ -13,6 +13,7 @@ namespace Mustache
         private readonly IGenerator _generator;
         private readonly List<EventHandler<KeyFoundEventArgs>> _foundHandlers;
         private readonly List<EventHandler<KeyNotFoundEventArgs>> _notFoundHandlers;
+        private readonly List<EventHandler<ValueRequestEventArgs>> _valueRequestedHandlers;
 
         /// <summary>
         /// Initializes a new instance of a Generator.
@@ -23,6 +24,7 @@ namespace Mustache
             _generator = generator;
             _foundHandlers = new List<EventHandler<KeyFoundEventArgs>>();
             _notFoundHandlers = new List<EventHandler<KeyNotFoundEventArgs>>();
+            _valueRequestedHandlers = new List<EventHandler<ValueRequestEventArgs>>();
         }
 
         /// <summary>
@@ -41,6 +43,15 @@ namespace Mustache
         {
             add { _notFoundHandlers.Add(value); }
             remove { _notFoundHandlers.Remove(value); }
+        }
+
+        /// <summary>
+        /// Occurs when a setter is encountered and requires a value to be provided.
+        /// </summary>
+        public event EventHandler<ValueRequestEventArgs> ValueRequested
+        {
+            add { _valueRequestedHandlers.Add(value); }
+            remove { _valueRequestedHandlers.Remove(value); }
         }
 
         /// <summary>
@@ -70,18 +81,24 @@ namespace Mustache
 
         private string render(IFormatProvider provider, object source)
         {
-            Scope scope = new Scope(source);
+            Scope keyScope = new Scope(source);
+            Scope contextScope = new Scope(new Dictionary<string, object>());
             foreach (EventHandler<KeyFoundEventArgs> handler in _foundHandlers)
             {
-                scope.KeyFound += handler;
+                keyScope.KeyFound += handler;
+                contextScope.KeyFound += handler;
             }
             foreach (EventHandler<KeyNotFoundEventArgs> handler in _notFoundHandlers)
             {
-                scope.KeyNotFound += handler;
+                keyScope.KeyNotFound += handler;
+                contextScope.KeyNotFound += handler;
+            }
+            foreach (EventHandler<ValueRequestEventArgs> handler in _valueRequestedHandlers)
+            {
+                contextScope.ValueRequested += handler;
             }
             StringWriter writer = new StringWriter(provider);
-            Scope contextScope = new Scope(new Dictionary<string, object>());
-            _generator.GetText(scope, writer, contextScope);
+            _generator.GetText(keyScope, writer, contextScope);
             return writer.ToString();
         }
     }

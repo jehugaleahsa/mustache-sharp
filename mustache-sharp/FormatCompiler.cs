@@ -152,10 +152,8 @@ namespace Mustache
             foreach (TagParameter parameter in definition.Parameters)
             {
                 regexBuilder.Append(@"(\s+?");
-                regexBuilder.Append(@"(?<argument>(");
+                regexBuilder.Append(@"(?<argument>(@?");
                 regexBuilder.Append(RegexHelper.CompoundKey);
-                regexBuilder.Append("|@");
-                regexBuilder.Append(RegexHelper.Key);
                 regexBuilder.Append(@")))");
                 if (!parameter.IsRequired)
                 {

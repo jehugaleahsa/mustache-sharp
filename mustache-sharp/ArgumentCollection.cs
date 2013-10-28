@@ -76,14 +76,9 @@ namespace Mustache
             return arguments;
         }
 
-        public Dictionary<string, object> GetArguments()
+        public Dictionary<string, object> GetArgumentKeyNames()
         {
-            Dictionary<string, object> arguments = new Dictionary<string, object>();
-            foreach (KeyValuePair<TagParameter, string> pair in _argumentLookup)
-            {
-                arguments.Add(pair.Key.Name, pair.Value);
-            }
-            return arguments;
+            return _argumentLookup.ToDictionary(p => p.Key.Name, p => (object)p.Value);
         }
     }
 }

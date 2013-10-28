@@ -1185,6 +1185,51 @@ Your order total was: $7.50";
             Assert.AreEqual(expected, actual, "The numbers were not valid.");
         }
 
+        /// <summary>
+        /// I can set context variables to control the flow of the code generation.
+        /// </summary>
+        [TestMethod]
+        public void TestCompile_CanUseContextVariableToToggle()
+        {
+            FormatCompiler compiler = new FormatCompiler();
+            const string format = @"{{#set even}}{{#each this}}{{#if @even}}Even {{#else}}Odd {{/if}}{{#set even}}{{/each}}";
+            Generator generator = compiler.Compile(format);
+            generator.ValueRequested += (sender, e) =>
+            {
+                e.Value = !(bool)(e.Value ?? false);
+            };
+            string actual = generator.Render(new int[] { 1, 1, 1, 1 });
+            string expected = "Even Odd Even Odd ";
+            Assert.AreEqual(expected, actual, "The context variable was not toggled.");
+        }
+
+        /// <summary>
+        /// I can set context variables to control the flow of the code generation.
+        /// It should even support nested context variables... for some reason.
+        /// </summary>
+        [TestMethod]
+        public void TestCompile_CanUseNestedContextVariableToToggle()
+        {
+            FormatCompiler compiler = new FormatCompiler();
+            const string format = @"{{#set this.variables.even}}
+{{#each this}}
+{{#if @variables.even}}
+Even
+{{#else}}
+Odd
+{{/if}}
+{{#set variables.even}}
+{{/each}}";
+            Generator generator = compiler.Compile(format);
+            generator.ValueRequested += (sender, e) =>
+            {
+                e.Value = !(bool)(e.Value ?? false);
+            };
+            string actual = generator.Render(new int[] { 1, 1, 1, 1 });
+            string expected = "EvenOddEvenOdd";
+            Assert.AreEqual(expected, actual, "The context variable was not toggled.");
+        }
+
         #endregion
     }
 }

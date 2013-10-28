@@ -39,9 +39,7 @@ namespace Mustache
         public override void GetText(TextWriter writer, Dictionary<string, object> arguments, Scope contextScope)
         {
             string name = (string)arguments[nameParameter];
-            // TODO - get the value for the variable
-            object value = null;
-            contextScope.Set(name, value);
+            contextScope.Set(name);
         }
     }
 }
