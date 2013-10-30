@@ -49,6 +49,11 @@ namespace Mustache
         public event EventHandler<PlaceholderFoundEventArgs> PlaceholderFound;
 
         /// <summary>
+        /// Occurs when a variable is found in the template.
+        /// </summary>
+        public event EventHandler<VariableFoundEventArgs> VariableFound;
+
+        /// <summary>
         /// Registers the given tag definition with the parser.
         /// </summary>
         /// <param name="definition">The tag definition to register.</param>
@@ -140,7 +145,7 @@ namespace Mustache
 
         private static string getKeyRegex()
         {
-            return @"((?<key>" + RegexHelper.CompoundKey + @")(,(?<alignment>(\+|-)?[\d]+))?(:(?<format>.*?))?)";
+            return @"((?<key>@?" + RegexHelper.CompoundKey + @")(,(?<alignment>(\+|-)?[\d]+))?(:(?<format>.*?))?)";
         }
 
         private static string getTagRegex(TagDefinition definition)
@@ -198,12 +203,29 @@ namespace Mustache
                     string key = match.Groups["key"].Value;
                     string alignment = match.Groups["alignment"].Value;
                     string formatting = match.Groups["format"].Value;
-                    PlaceholderFoundEventArgs args = new PlaceholderFoundEventArgs(key, alignment, formatting, context.ToArray());
-                    if (PlaceholderFound != null)
+                    if (key.StartsWith("@"))
                     {
-                        PlaceholderFound(this, args);
+                        VariableFoundEventArgs args = new VariableFoundEventArgs(key.Substring(1), alignment, formatting, context.ToArray());
+                        if (VariableFound != null)
+                        {
+                            VariableFound(this, args);
+                            key = "@" + args.Name;
+                            alignment = args.Alignment;
+                            formatting = args.Formatting;
+                        }
                     }
-                    KeyGenerator keyGenerator = new KeyGenerator(args.Key, args.Alignment, args.Formatting);
+                    else
+                    {
+                        PlaceholderFoundEventArgs args = new PlaceholderFoundEventArgs(key, alignment, formatting, context.ToArray());
+                        if (PlaceholderFound != null)
+                        {
+                            PlaceholderFound(this, args);
+                            key = args.Key;
+                            alignment = args.Alignment;
+                            formatting = args.Formatting;
+                        }
+                    }
+                    KeyGenerator keyGenerator = new KeyGenerator(key, alignment, formatting);
                     generator.AddGenerator(keyGenerator);
                 }
                 else if (match.Groups["open"].Success)
@@ -216,10 +238,12 @@ namespace Mustache
                         string message = String.Format(Resources.UnknownTag, tagName);
                         throw new FormatException(message);
                     }
+
+                    generator.AddGenerator(new StaticGenerator(leading));
+                    ArgumentCollection arguments = getArguments(nextDefinition, match, context);
+
                     if (nextDefinition.HasContent)
                     {
-                        generator.AddGenerator(new StaticGenerator(leading));
-                        ArgumentCollection arguments = getArguments(nextDefinition, match);
                         CompoundGenerator compoundGenerator = new CompoundGenerator(nextDefinition, arguments);
                         IEnumerable<TagParameter> contextParameters = nextDefinition.GetChildContextParameters();
                         bool hasContext = contextParameters.Any();
@@ -237,8 +261,6 @@ namespace Mustache
                     }
                     else
                     {
-                        generator.AddGenerator(new StaticGenerator(leading));
-                        ArgumentCollection arguments = getArguments(nextDefinition, match);
                         InlineGenerator inlineGenerator = new InlineGenerator(nextDefinition, arguments);
                         generator.AddGenerator(inlineGenerator);
                     }
@@ -270,9 +292,9 @@ namespace Mustache
             return formatIndex;
         }
 
-        private static ArgumentCollection getArguments(TagDefinition definition, Match match)
+        private ArgumentCollection getArguments(TagDefinition definition, Match match, List<Context> context)
         {
-            ArgumentCollection collection = new ArgumentCollection();
+            // make sure we don't have too many arguments
             List<Capture> captures = match.Groups["argument"].Captures.Cast<Capture>().ToList();
             List<TagParameter> parameters = definition.Parameters.ToList();
             if (captures.Count > parameters.Count)
@@ -280,25 +302,60 @@ namespace Mustache
                 string message = String.Format(Resources.WrongNumberOfArguments, definition.Name);
                 throw new FormatException(message);
             }
+
+            // provide default values for missing arguments
             if (captures.Count < parameters.Count)
             {
                 captures.AddRange(Enumerable.Repeat((Capture)null, parameters.Count - captures.Count));
             }
+
+            // pair up the parameters to the given arguments
+            // provide default for parameters with missing arguments
+            // throw an error if a missing argument is for a required parameter
+            Dictionary<TagParameter, string> arguments = new Dictionary<TagParameter, string>();
             foreach (var pair in parameters.Zip(captures, (p, c) => new { Capture = c, Parameter = p }))
             {
-                if (pair.Capture == null)
+                string value = null;
+                if (pair.Capture != null)
                 {
-                    if (pair.Parameter.IsRequired)
-                    {
-                        string message = String.Format(Resources.WrongNumberOfArguments, definition.Name);
-                        throw new FormatException(message);
-                    }
-                    collection.AddArgument(pair.Parameter, null);
+                    value = pair.Capture.Value;                    
                 }
-                else
+                else if (pair.Parameter.IsRequired)
                 {
-                    collection.AddArgument(pair.Parameter, pair.Capture.Value);
-                }                
+                    string message = String.Format(Resources.WrongNumberOfArguments, definition.Name);
+                    throw new FormatException(message);
+                }
+                arguments.Add(pair.Parameter, value);
+            }
+
+            // indicate that a key/variable has been encountered
+            // update the key/variable name
+            ArgumentCollection collection = new ArgumentCollection();
+            foreach (var pair in arguments)
+            {
+                string placeholder = pair.Value;
+                if (placeholder != null)
+                {
+                    if (placeholder.StartsWith("@"))
+                    {
+                        VariableFoundEventArgs args = new VariableFoundEventArgs(placeholder.Substring(1), String.Empty, String.Empty, context.ToArray());
+                        if (VariableFound != null)
+                        {
+                            VariableFound(this, args);
+                            placeholder = "@" + args.Name;
+                        }
+                    }
+                    else
+                    {
+                        PlaceholderFoundEventArgs args = new PlaceholderFoundEventArgs(placeholder, String.Empty, String.Empty, context.ToArray());
+                        if (PlaceholderFound != null)
+                        {
+                            PlaceholderFound(this, args);
+                            placeholder = args.Key;
+                        }
+                    }
+                }
+                collection.AddArgument(pair.Key, placeholder);
             }
             return collection;
         }

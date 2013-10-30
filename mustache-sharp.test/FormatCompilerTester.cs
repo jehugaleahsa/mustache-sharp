@@ -350,6 +350,63 @@ Content";
         }
 
         /// <summary>
+        /// We can track all of the keys that appear in a template by
+        /// registering with the PlaceholderFound event.
+        /// </summary>
+        [TestMethod]
+        public void TestCompile_FindsVariables_RecordsVariables()
+        {
+            FormatCompiler compiler = new FormatCompiler();
+            HashSet<string> variables = new HashSet<string>();
+            compiler.VariableFound += (o, e) =>
+            {
+                variables.Add(e.Name);
+            };
+            compiler.Compile(@"{{@FirstName}}{{@LastName}}");
+            string[] expected = new string[] { "FirstName", "LastName" };
+            string[] actual = variables.OrderBy(s => s).ToArray();
+            CollectionAssert.AreEqual(expected, actual, "Not all variables were found.");
+        }
+
+        /// <summary>
+        /// We can track all of the keys that appear in a template by
+        /// registering with the PlaceholderFound event.
+        /// </summary>
+        [TestMethod]
+        public void TestCompile_FindsPlaceholdersInIf_RecordsPlaceholders()
+        {
+            FormatCompiler compiler = new FormatCompiler();
+            HashSet<string> keys = new HashSet<string>();
+            compiler.PlaceholderFound += (o, e) =>
+            {
+                keys.Add(e.Key);
+            };
+            compiler.Compile(@"{{#if FirstName}}{{/if}}");
+            string[] expected = new string[] { "FirstName" };
+            string[] actual = keys.OrderBy(s => s).ToArray();
+            CollectionAssert.AreEqual(expected, actual, "Not all placeholders were found.");
+        }
+
+        /// <summary>
+        /// We can track all of the keys that appear in a template by
+        /// registering with the PlaceholderFound event.
+        /// </summary>
+        [TestMethod]
+        public void TestCompile_FindsVariablesInIf_RecordsVariables()
+        {
+            FormatCompiler compiler = new FormatCompiler();
+            HashSet<string> variables = new HashSet<string>();
+            compiler.VariableFound += (o, e) =>
+            {
+                variables.Add(e.Name);
+            };
+            compiler.Compile(@"{{#if @FirstName}}{{/if}}");
+            string[] expected = new string[] { "FirstName" };
+            string[] actual = variables.OrderBy(s => s).ToArray();
+            CollectionAssert.AreEqual(expected, actual, "Not all placeholders were found.");
+        }
+
+        /// <summary>
         /// We can determine the context in which a placeholder is found by looking at the provided context array.
         /// </summary>
         [TestMethod]
