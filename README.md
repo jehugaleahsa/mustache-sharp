@@ -50,7 +50,7 @@ The matching braces are required. Notice that they are double curly braces! The 
 The identifier is used to find a property with a matching name. If you want to print out the object itself, you can use the special identifier `this`.
 
     FormatCompiler compiler = new FormatCompiler();
-    Generator generator = compiler.Compiler("Hello, {{this}}!!!");
+    Generator generator = compiler.Compile("Hello, {{this}}!!!");
     string result = generator.Render("Bob");
     Console.Out.WriteLine(result);  // Hello, Bob!!!
     
