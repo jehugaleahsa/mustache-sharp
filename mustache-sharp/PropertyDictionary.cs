@@ -45,7 +45,7 @@ namespace Mustache
                 {
                     if (!propertyInfo.IsSpecialName)
                     {
-                        typeCache.Add(propertyInfo.Name, propertyInfo);
+                        if (!typeCache.ContainsKey(propertyInfo.Name)) typeCache.Add(propertyInfo.Name, propertyInfo);
                     }
                 }
                 _cache.Add(type, typeCache);

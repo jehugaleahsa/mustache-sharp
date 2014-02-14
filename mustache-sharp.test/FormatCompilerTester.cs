@@ -452,6 +452,31 @@ Content";
             Assert.AreEqual(String.Empty, context[0].TagName, "The top-most context had the wrong tag type.");
         }
 
+		/// <summary>
+		/// Cannot cope with two different properties of the same name in the class hierarchy
+		/// </summary>
+		[TestMethod]
+		public void TestCompile_Two_Properties_With_Same_Name() {
+			FormatCompiler compiler = new FormatCompiler();
+			const string format = @"Hello, {{Other}}!!!";
+			Generator generator = compiler.Compile(format);
+			string result = generator.Render(new DerivedClass());
+			Assert.AreEqual("Hello, Mustache.Test.FormatCompilerTester+DerivedClass!!!", result, "The wrong text was generated.");
+		}
+
+		public class BaseClass {
+			public BaseClass() {
+				Other = this;
+			}
+
+			public BaseClass Other { get; set; }
+		}
+
+		public class DerivedClass : BaseClass {
+			new public DerivedClass Other {
+				get { return (DerivedClass)base.Other; }
+			}
+		}
         #endregion
 
         #region Comment
