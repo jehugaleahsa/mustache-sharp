@@ -11,10 +11,28 @@ namespace Mustache
     /// </summary>
     internal sealed class PropertyDictionary : IDictionary<string, object>
     {
-        private static readonly Dictionary<Type, Dictionary<string, PropertyInfo>> _cache = new Dictionary<Type, Dictionary<string, PropertyInfo>>();
+		class VariableInfo {
+			PropertyInfo _property;
+			FieldInfo _field;
+
+			public VariableInfo(PropertyInfo property) {
+				_property = property;
+			}
+
+			public VariableInfo(FieldInfo field) {
+				_field = field;
+			}
+
+			public object GetValue(object instance) {
+				if (_property != null) return _property.GetValue(instance, null);
+				if (_field != null) return _field.GetValue(instance);
+				return null;
+			}
+		}
+		private static readonly Dictionary<Type, Dictionary<string, VariableInfo>> _cache = new Dictionary<Type, Dictionary<string, VariableInfo>>();
 
         private readonly object _instance;
-        private readonly Dictionary<string, PropertyInfo> _typeCache;
+		private readonly Dictionary<string, VariableInfo> _typeCache;
 
         /// <summary>
         /// Initializes a new instance of a PropertyDictionary.
@@ -25,7 +43,7 @@ namespace Mustache
             _instance = instance;
             if (instance == null)
             {
-                _typeCache = new Dictionary<string, PropertyInfo>();
+				_typeCache = new Dictionary<string, VariableInfo>();
             }
             else
             {
@@ -33,22 +51,27 @@ namespace Mustache
             }
         }
 
-        private static Dictionary<string, PropertyInfo> getCacheType(object instance)
+		private static Dictionary<string, VariableInfo> getCacheType(object instance)
         {
             Type type = instance.GetType();
-            Dictionary<string, PropertyInfo> typeCache;
+			Dictionary<string, VariableInfo> typeCache;
             if (!_cache.TryGetValue(type, out typeCache))
             {
-                typeCache = new Dictionary<string, PropertyInfo>();
+				typeCache = new Dictionary<string, VariableInfo>();
                 BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy;
                 foreach (PropertyInfo propertyInfo in type.GetProperties(flags))
                 {
                     if (!propertyInfo.IsSpecialName)
                     {
-                        if (!typeCache.ContainsKey(propertyInfo.Name)) typeCache.Add(propertyInfo.Name, propertyInfo);
+                        if (!typeCache.ContainsKey(propertyInfo.Name)) typeCache.Add(propertyInfo.Name, new VariableInfo(propertyInfo));
                     }
                 }
-                _cache.Add(type, typeCache);
+				foreach (FieldInfo fieldInfo in type.GetFields(flags)) {
+					if (!fieldInfo.IsSpecialName) {
+						if (!typeCache.ContainsKey(fieldInfo.Name)) typeCache.Add(fieldInfo.Name, new VariableInfo(fieldInfo));
+					}
+				}
+				_cache.Add(type, typeCache);
             }
             return typeCache;
         }
@@ -100,7 +123,7 @@ namespace Mustache
         /// <exception cref="System.ArgumentNullException">The name of the property was null.</exception>
         public bool TryGetValue(string key, out object value)
         {
-            PropertyInfo propertyInfo;
+            VariableInfo propertyInfo;
             if (!_typeCache.TryGetValue(key, out propertyInfo))
             {
                 value = null;
@@ -117,9 +140,9 @@ namespace Mustache
         {
             get
             {
-                ICollection<PropertyInfo> propertyInfos = _typeCache.Values;
+				ICollection<VariableInfo> propertyInfos = _typeCache.Values;
                 List<object> values = new List<object>();
-                foreach (PropertyInfo propertyInfo in propertyInfos)
+				foreach (VariableInfo propertyInfo in propertyInfos)
                 {
                     object value = getValue(propertyInfo);
                     values.Add(value);
@@ -143,7 +166,7 @@ namespace Mustache
         {
             get
             {
-                PropertyInfo propertyInfo = _typeCache[key];
+				VariableInfo propertyInfo = _typeCache[key];
                 return getValue(propertyInfo);
             }
             [EditorBrowsable(EditorBrowsableState.Never)]
@@ -167,7 +190,7 @@ namespace Mustache
 
         bool ICollection<KeyValuePair<string, object>>.Contains(KeyValuePair<string, object> item)
         {
-            PropertyInfo propertyInfo;
+			VariableInfo propertyInfo;
             if (!_typeCache.TryGetValue(item.Key, out propertyInfo))
             {
                 return false;
@@ -179,10 +202,10 @@ namespace Mustache
         void ICollection<KeyValuePair<string, object>>.CopyTo(KeyValuePair<string, object>[] array, int arrayIndex)
         {
             List<KeyValuePair<string, object>> pairs = new List<KeyValuePair<string, object>>();
-            ICollection<KeyValuePair<string, PropertyInfo>> collection = _typeCache;
-            foreach (KeyValuePair<string, PropertyInfo> pair in collection)
+			ICollection<KeyValuePair<string, VariableInfo>> collection = _typeCache;
+			foreach (KeyValuePair<string, VariableInfo> pair in collection)
             {
-                PropertyInfo propertyInfo = pair.Value;
+				VariableInfo propertyInfo = pair.Value;
                 object value = getValue(propertyInfo);
                 pairs.Add(new KeyValuePair<string, object>(pair.Key, value));
             }
@@ -217,7 +240,7 @@ namespace Mustache
         /// <returns></returns>
         public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
         {
-            foreach (KeyValuePair<string, PropertyInfo> pair in _typeCache)
+			foreach (KeyValuePair<string, VariableInfo> pair in _typeCache)
             {
                 object value = getValue(pair.Value);
                 yield return new KeyValuePair<string, object>(pair.Key, value);
@@ -229,9 +252,9 @@ namespace Mustache
             return GetEnumerator();
         }
 
-        private object getValue(PropertyInfo propertyInfo)
+		private object getValue(VariableInfo propertyInfo)
         {
-            return propertyInfo.GetValue(_instance, null);
+            return propertyInfo.GetValue(_instance);
         }
     }
 }
