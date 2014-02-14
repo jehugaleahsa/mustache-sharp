@@ -464,9 +464,24 @@ Content";
 			Assert.AreEqual("Hello, Mustache.Test.FormatCompilerTester+DerivedClass!!!", result, "The wrong text was generated.");
 		}
 
+		/// <summary>
+		/// Access fields as well as properties
+		/// </summary>
+		[TestMethod]
+		public void TestCompile_Access_Fields() {
+			FormatCompiler compiler = new FormatCompiler();
+			const string format = @"Hello, {{Name}}!!!";
+			Generator generator = compiler.Compile(format);
+			string result = generator.Render(new DerivedClass());
+			Assert.AreEqual("Hello, DerivedClass!!!", result, "The wrong text was generated.");
+		}
+
 		public class BaseClass {
+			public string Name;
+
 			public BaseClass() {
 				Other = this;
+				Name = GetType().Name;
 			}
 
 			public BaseClass Other { get; set; }
