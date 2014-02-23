@@ -476,6 +476,18 @@ Content";
 			Assert.AreEqual("Hello, DerivedClass!!!", result, "The wrong text was generated.");
 		}
 
+		/// <summary>
+		/// Access array elements and this
+		/// </summary>
+		[TestMethod]
+		public void TestCompile_Access_Arrays_And_This() {
+			FormatCompiler compiler = new FormatCompiler();
+			const string format = @"Hello, {{Array.[0]}} {{O.[1]}} {{O.[Good evening]}}!!!";
+			Generator generator = compiler.Compile(format);
+			string result = generator.Render(new { O = new DerivedClass(), Array = new string[] { "Element 0", "Element 1" } });
+			Assert.AreEqual("Hello, Element 0 1 Good evening!!!", result, "The wrong text was generated.");
+		}
+
 		public class BaseClass {
 			public string Name;
 
@@ -488,8 +500,17 @@ Content";
 		}
 
 		public class DerivedClass : BaseClass {
+
 			new public DerivedClass Other {
 				get { return (DerivedClass)base.Other; }
+			}
+
+			public string this[int i] {
+				get { return i.ToString(); }
+			}
+
+			public string this[string s] {
+				get { return s; }
 			}
 		}
         #endregion

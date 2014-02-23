@@ -33,6 +33,8 @@ namespace Mustache
 
         private readonly object _instance;
 		private readonly Dictionary<string, VariableInfo> _typeCache;
+		private PropertyInfo _intThis;
+		private PropertyInfo _stringThis;
 
         /// <summary>
         /// Initializes a new instance of a PropertyDictionary.
@@ -48,6 +50,8 @@ namespace Mustache
             else
             {
                 _typeCache = getCacheType(_instance);
+				_intThis = _instance.GetType().GetProperty("Item", new Type[] { typeof(int) });
+				_stringThis = _instance.GetType().GetProperty("Item", new Type[] { typeof(string) });
             }
         }
 
@@ -100,7 +104,11 @@ namespace Mustache
             return _typeCache.ContainsKey(key);
         }
 
-        /// <summary>
+		public bool HasIntThis { get { return _intThis != null; } }
+
+		public bool HasStringThis { get { return _stringThis != null; } }
+
+		/// <summary>
         /// Gets the name of the properties in the type.
         /// </summary>
         public ICollection<string> Keys
@@ -133,7 +141,43 @@ namespace Mustache
             return true;
         }
 
-        /// <summary>
+		/// <summary>
+		/// Tries to get the this[key] value for the given property name.
+		/// </summary>
+		/// <param name="key">The index to use in the this method.</param>
+		/// <param name="value">The variable to store the value of the property or the default value if the property is not found.</param>
+		/// <returns>True if a result was found; false if an exception was thrown.</returns>
+		/// <exception cref="System.ArgumentNullException">The key was null.</exception>
+
+		public bool TryGetThisValue(int key, out object value) {
+			try {
+				value = _intThis.GetValue(_instance, new object[] { key });
+				return true;
+			} catch {
+				value = null;
+				return false;
+			}
+		}
+
+		/// <summary>
+		/// Tries to get the this[key] value for the given property name.
+		/// </summary>
+		/// <param name="key">The index to use in the this method.</param>
+		/// <param name="value">The variable to store the value of the property or the default value if the property is not found.</param>
+		/// <returns>True if a result was found; false if an exception was thrown.</returns>
+		/// <exception cref="System.ArgumentNullException">The key was null.</exception>
+
+		public bool TryGetThisValue(string key, out object value) {
+			try {
+				value = _stringThis.GetValue(_instance, new object[] { key });
+				return true;
+			} catch {
+				value = null;
+				return false;
+			}
+		}
+
+		/// <summary>
         /// Gets the values of all of the properties in the object.
         /// </summary>
         public ICollection<object> Values
