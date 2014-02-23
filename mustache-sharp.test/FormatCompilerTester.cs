@@ -990,7 +990,19 @@ Last";
             Assert.AreEqual("BeforeYayAfter", result, "The wrong text was generated.");
         }
 
-        /// <summary>
+		/// <summary>
+		/// If the condition evaluates to false, the content of an unless statement should be printed.
+		/// </summary>
+		[TestMethod]
+		public void TestCompile_UnlessElse_EvaluatesToFalse_PrintsUnless() {
+			FormatCompiler parser = new FormatCompiler();
+			const string format = "Before{{#unless this}}Yay{{/unless}}After";
+			Generator generator = parser.Compile(format);
+			string result = generator.Render(false);
+			Assert.AreEqual("BeforeYayAfter", result, "The wrong text was generated.");
+		}
+
+		/// <summary>
         /// Second else blocks will result in an exceptions being thrown.
         /// </summary>
         [TestMethod]
