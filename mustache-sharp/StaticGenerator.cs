@@ -14,12 +14,17 @@ namespace Mustache
         /// <summary>
         /// Initializes a new instance of a StaticGenerator.
         /// </summary>
-        public StaticGenerator(string value)
-        {
-            this.value = value.Replace(Environment.NewLine, String.Empty);
+        public StaticGenerator(string value) : this(value, true) {
         }
 
-        /// <summary>
+		/// <summary>
+		/// Initializes a new instance of a StaticGenerator.
+		/// </summary>
+		public StaticGenerator(string value, bool removeNewLines) {
+			this.value = removeNewLines ? value.Replace(Environment.NewLine, String.Empty) : value;
+		}
+
+		/// <summary>
         /// Gets or sets the static text.
         /// </summary>
         public string Value

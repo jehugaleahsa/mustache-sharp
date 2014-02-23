@@ -452,6 +452,67 @@ Content";
             Assert.AreEqual(String.Empty, context[0].TagName, "The top-most context had the wrong tag type.");
         }
 
+		/// <summary>
+		/// Cannot cope with two different properties of the same name in the class hierarchy
+		/// </summary>
+		[TestMethod]
+		public void TestCompile_Two_Properties_With_Same_Name() {
+			FormatCompiler compiler = new FormatCompiler();
+			const string format = @"Hello, {{Other}}!!!";
+			Generator generator = compiler.Compile(format);
+			string result = generator.Render(new DerivedClass());
+			Assert.AreEqual("Hello, Mustache.Test.FormatCompilerTester+DerivedClass!!!", result, "The wrong text was generated.");
+		}
+
+		/// <summary>
+		/// Access fields as well as properties
+		/// </summary>
+		[TestMethod]
+		public void TestCompile_Access_Fields() {
+			FormatCompiler compiler = new FormatCompiler();
+			const string format = @"Hello, {{Name}}!!!";
+			Generator generator = compiler.Compile(format);
+			string result = generator.Render(new DerivedClass());
+			Assert.AreEqual("Hello, DerivedClass!!!", result, "The wrong text was generated.");
+		}
+
+		/// <summary>
+		/// Access array elements and this
+		/// </summary>
+		[TestMethod]
+		public void TestCompile_Access_Arrays_And_This() {
+			FormatCompiler compiler = new FormatCompiler();
+			const string format = @"Hello, {{Array.[0]}} {{O.[1]}} {{O.[Good evening]}}!!!";
+			Generator generator = compiler.Compile(format);
+			string result = generator.Render(new { O = new DerivedClass(), Array = new string[] { "Element 0", "Element 1" } });
+			Assert.AreEqual("Hello, Element 0 1 Good evening!!!", result, "The wrong text was generated.");
+		}
+
+		public class BaseClass {
+			public string Name;
+
+			public BaseClass() {
+				Other = this;
+				Name = GetType().Name;
+			}
+
+			public BaseClass Other { get; set; }
+		}
+
+		public class DerivedClass : BaseClass {
+
+			new public DerivedClass Other {
+				get { return (DerivedClass)base.Other; }
+			}
+
+			public string this[int i] {
+				get { return i.ToString(); }
+			}
+
+			public string this[string s] {
+				get { return s; }
+			}
+		}
         #endregion
 
         #region Comment
@@ -929,7 +990,19 @@ Last";
             Assert.AreEqual("BeforeYayAfter", result, "The wrong text was generated.");
         }
 
-        /// <summary>
+		/// <summary>
+		/// If the condition evaluates to false, the content of an unless statement should be printed.
+		/// </summary>
+		[TestMethod]
+		public void TestCompile_UnlessElse_EvaluatesToFalse_PrintsUnless() {
+			FormatCompiler parser = new FormatCompiler();
+			const string format = "Before{{#unless this}}Yay{{/unless}}After";
+			Generator generator = parser.Compile(format);
+			string result = generator.Render(false);
+			Assert.AreEqual("BeforeYayAfter", result, "The wrong text was generated.");
+		}
+
+		/// <summary>
         /// Second else blocks will result in an exceptions being thrown.
         /// </summary>
         [TestMethod]

@@ -27,7 +27,9 @@ namespace Mustache
 
             IfTagDefinition ifDefinition = new IfTagDefinition();
             _tagLookup.Add(ifDefinition.Name, ifDefinition);
-            ElifTagDefinition elifDefinition = new ElifTagDefinition();
+			UnlessTagDefinition unlessDefinition = new UnlessTagDefinition();
+			_tagLookup.Add(unlessDefinition.Name, unlessDefinition);
+			ElifTagDefinition elifDefinition = new ElifTagDefinition();
             _tagLookup.Add(elifDefinition.Name, elifDefinition);
             ElseTagDefinition elseDefinition = new ElseTagDefinition();
             _tagLookup.Add(elseDefinition.Name, elseDefinition);
@@ -52,6 +54,12 @@ namespace Mustache
         /// Occurs when a variable is found in the template.
         /// </summary>
         public event EventHandler<VariableFoundEventArgs> VariableFound;
+
+		/// <summary>
+		/// New lines in text are removed by default
+		/// </summary>
+
+		public bool RemoveNewLines = true;
 
         /// <summary>
         /// Registers the given tag definition with the parser.
@@ -87,7 +95,7 @@ namespace Mustache
             List<Context> context = new List<Context>() { new Context(_masterDefinition.Name, new ContextParameter[0]) };
             int formatIndex = buildCompoundGenerator(_masterDefinition, context, generator, format, 0);
             string trailing = format.Substring(formatIndex);
-            generator.AddGenerator(new StaticGenerator(trailing));
+			generator.AddGenerator(new StaticGenerator(trailing, RemoveNewLines));
             return new Generator(generator);
         }
 
@@ -145,7 +153,7 @@ namespace Mustache
 
         private static string getKeyRegex()
         {
-            return @"((?<key>@?" + RegexHelper.CompoundKey + @")(,(?<alignment>(\+|-)?[\d]+))?(:(?<format>.*?))?)";
+            return @"((?<key>@?" + RegexHelper.CompoundKeyOrArrayAccess + @")(,(?<alignment>(\+|-)?[\d]+))?(:(?<format>.*?))?)";
         }
 
         private static string getTagRegex(TagDefinition definition)
@@ -158,7 +166,7 @@ namespace Mustache
             {
                 regexBuilder.Append(@"(\s+?");
                 regexBuilder.Append(@"(?<argument>(@?");
-                regexBuilder.Append(RegexHelper.CompoundKey);
+                regexBuilder.Append(RegexHelper.CompoundKeyOrArrayAccess);
                 regexBuilder.Append(@")))");
                 if (!parameter.IsRequired)
                 {
@@ -198,7 +206,7 @@ namespace Mustache
 
                 if (match.Groups["key"].Success)
                 {
-                    generator.AddGenerator(new StaticGenerator(leading));
+					generator.AddGenerator(new StaticGenerator(leading, RemoveNewLines));
                     formatIndex = match.Index + match.Length;
                     string key = match.Groups["key"].Value;
                     string alignment = match.Groups["alignment"].Value;
@@ -239,7 +247,7 @@ namespace Mustache
                         throw new FormatException(message);
                     }
 
-                    generator.AddGenerator(new StaticGenerator(leading));
+					generator.AddGenerator(new StaticGenerator(leading, RemoveNewLines));
                     ArgumentCollection arguments = getArguments(nextDefinition, match, context);
 
                     if (nextDefinition.HasContent)
@@ -267,7 +275,7 @@ namespace Mustache
                 }
                 else if (match.Groups["close"].Success)
                 {
-                    generator.AddGenerator(new StaticGenerator(leading));
+					generator.AddGenerator(new StaticGenerator(leading, RemoveNewLines));
                     string tagName = match.Groups["name"].Value;
                     TagDefinition nextDefinition = _tagLookup[tagName];
                     formatIndex = match.Index;
@@ -279,7 +287,7 @@ namespace Mustache
                 }
                 else if (match.Groups["comment"].Success)
                 {
-                    generator.AddGenerator(new StaticGenerator(leading));
+					generator.AddGenerator(new StaticGenerator(leading, RemoveNewLines));
                     formatIndex = match.Index + match.Length;
                 }
                 else if (match.Groups["unknown"].Success)
