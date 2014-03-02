@@ -471,6 +471,63 @@ Content";
             public string Field;
         }
 
+        /// <summary>
+        /// If a derived class replaces a property/field in the base class (via new)
+        /// it should be used, instead of causing an exception or using the base's
+        /// property/field.
+        /// </summary>
+        [TestMethod]
+        public void TestGenerate_NewPropertyInDerivedClass_UsesDerivedProperty()
+        {
+            FormatCompiler compiler = new FormatCompiler();
+            const string format = @"Hello, {{Value}}!!!";
+            Generator generator = compiler.Compile(format);
+            DerivedClass instance = new DerivedClass() { Value = "Derived" };
+            string result = generator.Render(instance);
+            Assert.AreEqual("Hello, Derived!!!", result, "The wrong text was generated.");
+        }
+
+        public class BaseClass
+        {
+            public int Value { get; set; }
+        }
+
+        public class DerivedClass : BaseClass
+        {
+            public DerivedClass()
+            {
+                base.Value = 1;
+            }
+
+            public new string Value { get; set; }
+        }
+
+        /// <summary>
+        /// If a derived class replaces a property/field in the base class (via new)
+        /// it should be used, instead of causing an exception or using the base's
+        /// property/field.
+        /// </summary>
+        [TestMethod]
+        public void TestGenerate_NewPropertyInGenericDerivedClass_UsesDerivedProperty()
+        {
+            FormatCompiler compiler = new FormatCompiler();
+            const string format = @"Hello, {{Value}}!!!";
+            Generator generator = compiler.Compile(format);
+            DerivedClass<string> instance = new DerivedClass<string>() { Value = "Derived" };
+            string result = generator.Render(instance);
+            Assert.AreEqual("Hello, Derived!!!", result, "The wrong text was generated.");
+        }
+
+        public class DerivedClass<T> : BaseClass
+        {
+            public DerivedClass()
+            {
+                base.Value = 1;
+            }
+
+            public new T Value { get; set; }
+        }
+
         #endregion
 
         #region Comment

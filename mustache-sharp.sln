@@ -1,16 +1,9 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mustache-sharp", "mustache-sharp\mustache-sharp.csproj", "{D71B378F-A4BA-4263-A4F0-07A49A0C528D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mustache-sharp.test", "mustache-sharp.test\mustache-sharp.test.csproj", "{7F607362-0680-4751-B1DC-621219294AE3}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{25414E49-67E6-4B8D-8AD8-78C70F8992A7}"
-	ProjectSection(SolutionItems) = preProject
-		Local.testsettings = Local.testsettings
-		mustache-sharp.vsmdi = mustache-sharp.vsmdi
-		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution

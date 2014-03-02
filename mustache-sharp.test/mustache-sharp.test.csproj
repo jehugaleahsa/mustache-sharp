@@ -48,7 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\mustache-sharp\mustache-sharp.csproj">
-      <Project>{D71B378F-A4BA-4263-A4F0-07A49A0C528D}</Project>
+      <Project>{d71b378f-a4ba-4263-a4f0-07a49a0c528d}</Project>
       <Name>mustache-sharp</Name>
     </ProjectReference>
   </ItemGroup>

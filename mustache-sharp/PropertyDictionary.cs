@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Reflection;
 
 namespace Mustache
@@ -40,21 +41,55 @@ namespace Mustache
             if (!_cache.TryGetValue(type, out typeCache))
             {
                 typeCache = new Dictionary<string, Func<object, object>>();
+                
                 BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy;
-                foreach (PropertyInfo propertyInfo in type.GetProperties(flags))
+                
+                var properties = getMembers(type, type.GetProperties(flags).Where(p => !p.IsSpecialName));
+                foreach (PropertyInfo propertyInfo in properties)
                 {
-                    if (!propertyInfo.IsSpecialName)
-                    {
-                        typeCache.Add(propertyInfo.Name, i => propertyInfo.GetValue(i, null));
-                    }
+                    typeCache.Add(propertyInfo.Name, i => propertyInfo.GetValue(i, null));
                 }
-                foreach (FieldInfo fieldInfo in type.GetFields(flags))
+
+                var fields = getMembers(type, type.GetFields(flags).Where(f => !f.IsSpecialName));
+                foreach (FieldInfo fieldInfo in fields)
                 {
                     typeCache.Add(fieldInfo.Name, i => fieldInfo.GetValue(i));
                 }
+                
                 _cache.Add(type, typeCache);
             }
             return typeCache;
+        }
+
+        private static IEnumerable<TMember> getMembers<TMember>(Type type, IEnumerable<TMember> members)
+            where TMember : MemberInfo
+        {
+            var singles = from member in members
+                          group member by member.Name into nameGroup
+                          where nameGroup.Count() == 1
+                          from property in nameGroup
+                          select property;
+            var multiples = from member in members
+                            group member by member.Name into nameGroup
+                            where nameGroup.Count() > 1
+                            select
+                            (
+                                from member in nameGroup
+                                orderby getDistance(type, member)
+                                select member
+                            ).First();
+            var combined = singles.Concat(multiples);
+            return combined;
+        }
+
+        private static int getDistance(Type type, MemberInfo memberInfo)
+        {
+            int distance = 0;
+            for (; type != null && type != memberInfo.DeclaringType; type = type.BaseType)
+            {
+                ++distance;
+            }
+            return distance;
         }
 
         /// <summary>
