@@ -452,6 +452,25 @@ Content";
             Assert.AreEqual(String.Empty, context[0].TagName, "The top-most context had the wrong tag type.");
         }
 
+        /// <summary>
+        /// If a key refers to a public field, its value should be substituted in the output.
+        /// </summary>
+        [TestMethod]
+        public void TestGenerate_KeyRefersToPublicField_SubstitutesValue()
+        {
+            FormatCompiler compiler = new FormatCompiler();
+            const string format = @"Hello, {{Field}}!!!";
+            Generator generator = compiler.Compile(format);
+            ClassWithPublicField instance = new ClassWithPublicField() { Field = "Bob" };
+            string result = generator.Render(instance);
+            Assert.AreEqual("Hello, Bob!!!", result, "The wrong text was generated.");
+        }
+
+        public class ClassWithPublicField
+        {
+            public string Field;
+        }
+
         #endregion
 
         #region Comment
