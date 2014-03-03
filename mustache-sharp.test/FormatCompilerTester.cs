@@ -70,7 +70,24 @@ namespace Mustache.Test
             Assert.AreEqual(expected, result, "The wrong text was generated.");
         }
 
-        #endregion
+		/// <summary>
+		/// If RemoveNewLines is turned off, then newlines in the template are preserved.
+		/// </summary>
+		[TestMethod]
+		public void TestCompile_PreserveNewLines() {
+			FormatCompiler compiler = new FormatCompiler();
+			compiler.RemoveNewLines = false;
+			const string format = @"Hello
+    ";
+
+			const string expected = @"Hello
+    ";
+			Generator generator = compiler.Compile(format);
+			string result = generator.Render(null);
+			Assert.AreEqual(expected, result, "The wrong text was generated.");
+		}
+
+		#endregion
 
         #region Key
 
