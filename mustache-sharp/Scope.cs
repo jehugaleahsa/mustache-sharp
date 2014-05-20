@@ -125,7 +125,7 @@ namespace Mustache
 
         private static IDictionary<string, object> toLookup(object value)
         {
-            IDictionary<string, object> lookup = value as IDictionary<string, object>;
+            IDictionary<string, object> lookup = UpcastDictionary.Create(value);
             if (lookup == null)
             {
                 lookup = new PropertyDictionary(value);
