@@ -10,6 +10,12 @@ namespace Mustache
     {
         internal const string Key = @"[_\w][_\w\d]*";
         internal const string CompoundKey = Key + @"(\." + Key + ")*";
+		internal const string KeyOrArrayAccess = "(?:" + Key + @"|\[[^\]]+\]" + ")";
+		internal const string CompoundKeyOrArrayAccess = KeyOrArrayAccess + @"(\." + KeyOrArrayAccess + ")*";
+
+		public static bool IsInteger(string s) {
+			return Regex.IsMatch(s, @"^\d{1,10}$");
+		}
 
         /// <summary>
         /// Determines whether the given name is a legal identifier.
@@ -25,5 +31,15 @@ namespace Mustache
             Regex regex = new Regex("^" + Key + "$");
             return regex.IsMatch(name);
         }
+
+		public static string[] SplitKey(string compoundKey) {
+			MatchCollection m = Regex.Matches(compoundKey, KeyOrArrayAccess);
+			// Would prefer to use Linq for this, but MatchCollection does not seem to support it
+			string[] result = new string[m.Count];
+			for (int i = 0; i < result.Length; i++) {
+				result[i] = m[i].Value;
+			}
+			return result;
+		}
     }
 }
