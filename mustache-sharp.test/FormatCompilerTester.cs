@@ -1364,5 +1364,28 @@ Odd
         }
 
         #endregion
+
+        #region New Line Management
+
+		/// <summary>
+		/// If the compiler is configured to ignore new lines,
+        /// they should not be removed from the output.
+		/// </summary>
+		[TestMethod]
+		public void TestCompile_PreserveNewLines() 
+        {
+		    FormatCompiler compiler = new FormatCompiler();
+		    compiler.RemoveNewLines = false;
+		    const string format = @"Hello
+    ";
+
+		    const string expected = @"Hello
+    ";
+		    Generator generator = compiler.Compile(format);
+		    string result = generator.Render(null);
+		    Assert.AreEqual(expected, result, "The wrong text was generated.");
+		}
+
+        #endregion
     }
 }

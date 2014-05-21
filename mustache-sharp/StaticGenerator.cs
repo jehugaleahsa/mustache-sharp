@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 
 namespace Mustache
@@ -14,9 +13,16 @@ namespace Mustache
         /// <summary>
         /// Initializes a new instance of a StaticGenerator.
         /// </summary>
-        public StaticGenerator(string value)
+        public StaticGenerator(string value, bool removeNewLines)
         {
-            this.value = value.Replace(Environment.NewLine, String.Empty);
+            if (removeNewLines)
+            {
+                this.value = value.Replace(Environment.NewLine, String.Empty);
+            }
+            else
+            {
+                this.value = value;
+            }
         }
 
         /// <summary>
