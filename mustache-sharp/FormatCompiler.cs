@@ -152,7 +152,7 @@ namespace Mustache
 
         private static string getKeyRegex()
         {
-            return @"((?<key>@?" + RegexHelper.CompoundKey + @")(,(?<alignment>(\+|-)?[\d]+))?(:(?<format>.*?))?)";
+            return @"((?<key>" + RegexHelper.CompoundKey + @")(,(?<alignment>(\+|-)?[\d]+))?(:(?<format>.*?))?)";
         }
 
         private static string getTagRegex(TagDefinition definition)
@@ -164,8 +164,8 @@ namespace Mustache
             foreach (TagParameter parameter in definition.Parameters)
             {
                 regexBuilder.Append(@"(\s+?");
-                regexBuilder.Append(@"(?<argument>(@?");
-                regexBuilder.Append(RegexHelper.CompoundKey);
+                regexBuilder.Append(@"(?<argument>(");
+                regexBuilder.Append(RegexHelper.Argument);
                 regexBuilder.Append(@")))");
                 if (!parameter.IsRequired)
                 {
@@ -341,28 +341,46 @@ namespace Mustache
             foreach (var pair in arguments)
             {
                 string placeholder = pair.Value;
+                IArgument argument = null;
                 if (placeholder != null)
                 {
                     if (placeholder.StartsWith("@"))
                     {
+                        string variableName = placeholder.Substring(1);
                         VariableFoundEventArgs args = new VariableFoundEventArgs(placeholder.Substring(1), String.Empty, String.Empty, context.ToArray());
                         if (VariableFound != null)
                         {
                             VariableFound(this, args);
-                            placeholder = "@" + args.Name;
+                            variableName = args.Name;
+                        }
+                        argument = new VariableArgument(variableName);
+                    }
+                    else if (RegexHelper.IsString(placeholder))
+                    {
+                        string value = placeholder.Trim('\'');
+                        argument = new StringArgument(value);
+                    }
+                    else if (RegexHelper.IsNumber(placeholder))
+                    {
+                        decimal number;
+                        if (Decimal.TryParse(placeholder, out number))
+                        {
+                            argument = new NumberArgument(number);
                         }
                     }
                     else
                     {
+                        string placeholderName = placeholder;
                         PlaceholderFoundEventArgs args = new PlaceholderFoundEventArgs(placeholder, String.Empty, String.Empty, context.ToArray());
                         if (PlaceholderFound != null)
                         {
                             PlaceholderFound(this, args);
-                            placeholder = args.Key;
+                            placeholderName = args.Key;
                         }
+                        argument = new PlaceholderArgument(placeholderName);
                     }
                 }
-                collection.AddArgument(pair.Key, placeholder);
+                collection.AddArgument(pair.Key, argument);
             }
             return collection;
         }

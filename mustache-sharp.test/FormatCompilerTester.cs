@@ -1387,5 +1387,69 @@ Odd
 		}
 
         #endregion
+
+        #region Strings
+
+        /// <summary>
+        /// We will use a string variable to determine whether or not to print out a line.
+        /// </summary>
+        [TestMethod]
+        public void TestCompile_StringArgument_PassedToTag()
+        {
+            FormatCompiler compiler = new FormatCompiler();
+            const string format = @"{{#if 'hello'}}Hello{{/if}}";
+            Generator generator = compiler.Compile(format);
+            string actual = generator.Render(null);
+            string expected = "Hello";
+            Assert.AreEqual(expected, actual, "The string was not passed to the formatter.");
+        }
+
+        /// <summary>
+        /// We will use a string variable to determine whether or not to print out a line.
+        /// </summary>
+        [TestMethod]
+        public void TestCompile_EmptyStringArgument_PassedToTag()
+        {
+            FormatCompiler compiler = new FormatCompiler();
+            const string format = @"{{#if ''}}Hello{{/if}}";
+            Generator generator = compiler.Compile(format);
+            string actual = generator.Render(null);
+            string expected = "";
+            Assert.AreEqual(expected, actual, "The string was not passed to the formatter.");
+        }
+
+        #endregion
+
+        #region Numbers
+
+        /// <summary>
+        /// We will use a number variable to determine whether or not to print out a line.
+        /// </summary>
+        [TestMethod]
+        public void TestCompile_NumberArgument_PassedToTag()
+        {
+            FormatCompiler compiler = new FormatCompiler();
+            const string format = @"{{#if 4}}Hello{{/if}}";
+            Generator generator = compiler.Compile(format);
+            string actual = generator.Render(null);
+            string expected = "Hello";
+            Assert.AreEqual(expected, actual, "The number was not passed to the formatter.");
+        }
+
+        /// <summary>
+        /// We will use a string variable to determine whether or not to print out a line.
+        /// </summary>
+        [TestMethod]
+        public void TestCompile_ZeroNumberArgument_PassedToTag()
+        {
+            FormatCompiler compiler = new FormatCompiler();
+            const string format = @"{{#if 00.0000}}Hello{{/if}}";
+            Generator generator = compiler.Compile(format);
+            string actual = generator.Render(null);
+            string expected = "";
+            Assert.AreEqual(expected, actual, "The number was not passed to the formatter.");
+        }
+
+        #endregion
     }
 }
