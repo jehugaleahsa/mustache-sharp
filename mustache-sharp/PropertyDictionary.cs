@@ -30,7 +30,10 @@ namespace Mustache
             }
             else
             {
-                _typeCache = getCacheType(_instance);
+                lock (_cache)
+                {
+                    _typeCache = getCacheType(_instance);
+                }
             }
         }
 
