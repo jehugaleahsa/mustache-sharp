@@ -20,11 +20,48 @@ namespace Mustache
                 return sourceDictionary;
             }
             Type sourceType = source.GetType();
-            if (!sourceType.IsGenericType)
+            var types = getTypes(sourceType);
+            return getDictionary(types, source);
+        }
+
+        private static IEnumerable<Type> getTypes(Type type)
+        {
+            HashSet<Type> types = new HashSet<Type>();
+            getTypes(types, type);
+            return types;
+        }
+
+        private static void getTypes(HashSet<Type> types, Type type)
+        {
+            if (type == null)
+            {
+                return;
+            }
+            types.Add(type);
+            getTypes(types, type.BaseType);
+            foreach (Type interfaceType in type.GetInterfaces())
+            {
+                getTypes(types, interfaceType);
+            }
+        }
+
+        private static IDictionary<string, object> getDictionary(IEnumerable<Type> types, object source)
+        {
+            var dictionaries = from type in types
+                               let valueType = getValueType(type)
+                               where valueType != null
+                               let upcastType = typeof(UpcastDictionary<>).MakeGenericType(valueType)
+                               select (IDictionary<string, object>)Activator.CreateInstance(upcastType, source);
+            return dictionaries.FirstOrDefault();
+        }
+
+        private static Type getValueType(Type type)
+        {
+            if (!type.IsGenericType)
             {
                 return null;
             }
-            Type[] argumentTypes = sourceType.GetGenericArguments();
+            Type[] argumentTypes = type.GetGenericArguments();
             if (argumentTypes.Length != 2)
             {
                 return null;
@@ -36,12 +73,11 @@ namespace Mustache
             }
             Type valueType = argumentTypes[1];
             Type genericType = typeof(IDictionary<,>).MakeGenericType(typeof(string), valueType);
-            if (!genericType.IsAssignableFrom(sourceType))
+            if (!genericType.IsAssignableFrom(type))
             {
                 return null;
             }
-            Type upcastType = typeof(UpcastDictionary<>).MakeGenericType(valueType);
-            return (IDictionary<string, object>)Activator.CreateInstance(upcastType, source);
+            return valueType;
         }
     }
 

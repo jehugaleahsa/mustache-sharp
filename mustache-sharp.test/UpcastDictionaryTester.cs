@@ -202,5 +202,22 @@ namespace Mustache.Test
             };
             CollectionAssert.AreEqual(expected, values, "The enumerator did not return the correct pairs.");
         }
+
+        /// <summary>
+        /// Newtonsoft's JSON.NET has an object called JObject. This is a concrete class
+        /// that inherits from IDictionary&lt;string, JToken&gt;. The UpcastDictionary
+        /// should be able to handle this type.
+        /// </summary>
+        [TestMethod]
+        public void ShouldHandleConcreteClassInheritingFromDictionary()
+        {
+            var dictionary = new ConcreteDictionary() { { "Name", "Bob" } };
+            var result = UpcastDictionary.Create(dictionary);
+            Assert.AreEqual(dictionary["Name"], result["Name"]);
+        }
+
+        public class ConcreteDictionary : Dictionary<string, string>
+        {
+        }
     }
 }
