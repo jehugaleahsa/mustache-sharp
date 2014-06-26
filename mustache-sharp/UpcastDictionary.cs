@@ -29,42 +29,28 @@ namespace Mustache
             Queue<Type> pending = new Queue<Type>();
             HashSet<Type> visited = new HashSet<Type>();
             pending.Enqueue(sourceType);
-            foreach (Type type in getTypes(pending, visited))
+
+            while (pending.Count != 0)
             {
+                Type type = pending.Dequeue();
+                visited.Add(type);
                 yield return type;
-            }
-        }
 
-        private static IEnumerable<Type> getTypes(Queue<Type> pending, HashSet<Type> visited)
-        {
-            if (pending.Count == 0)
-            {
-                yield break;
-            }
-
-            Type sourceType = pending.Dequeue();
-            visited.Add(sourceType);
-            yield return sourceType;
-
-            if (sourceType.BaseType != null)
-            {
-                if (!visited.Contains(sourceType.BaseType))
+                if (type.BaseType != null)
                 {
-                    pending.Enqueue(sourceType.BaseType);
+                    if (!visited.Contains(type.BaseType))
+                    {
+                        pending.Enqueue(type.BaseType);
+                    }
                 }
-            }
 
-            foreach (Type interfaceType in sourceType.GetInterfaces())
-            {
-                if (!visited.Contains(interfaceType))
+                foreach (Type interfaceType in type.GetInterfaces())
                 {
-                    pending.Enqueue(interfaceType);
+                    if (!visited.Contains(interfaceType))
+                    {
+                        pending.Enqueue(interfaceType);
+                    }
                 }
-            }
-
-            foreach (Type type in getTypes(pending, visited))
-            {
-                yield return type;
             }
         }
 
