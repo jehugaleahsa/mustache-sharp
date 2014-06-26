@@ -24,24 +24,47 @@ namespace Mustache
             return getDictionary(types, source);
         }
 
-        private static IEnumerable<Type> getTypes(Type type)
+        private static IEnumerable<Type> getTypes(Type sourceType)
         {
-            HashSet<Type> types = new HashSet<Type>();
-            getTypes(types, type);
-            return types;
+            Queue<Type> pending = new Queue<Type>();
+            HashSet<Type> visited = new HashSet<Type>();
+            pending.Enqueue(sourceType);
+            foreach (Type type in getTypes(pending, visited))
+            {
+                yield return type;
+            }
         }
 
-        private static void getTypes(HashSet<Type> types, Type type)
+        private static IEnumerable<Type> getTypes(Queue<Type> pending, HashSet<Type> visited)
         {
-            if (type == null)
+            if (pending.Count == 0)
             {
-                return;
+                yield break;
             }
-            types.Add(type);
-            getTypes(types, type.BaseType);
-            foreach (Type interfaceType in type.GetInterfaces())
+
+            Type sourceType = pending.Dequeue();
+            visited.Add(sourceType);
+            yield return sourceType;
+
+            if (sourceType.BaseType != null)
             {
-                getTypes(types, interfaceType);
+                if (!visited.Contains(sourceType.BaseType))
+                {
+                    pending.Enqueue(sourceType.BaseType);
+                }
+            }
+
+            foreach (Type interfaceType in sourceType.GetInterfaces())
+            {
+                if (!visited.Contains(interfaceType))
+                {
+                    pending.Enqueue(interfaceType);
+                }
+            }
+
+            foreach (Type type in getTypes(pending, visited))
+            {
+                yield return type;
             }
         }
 
