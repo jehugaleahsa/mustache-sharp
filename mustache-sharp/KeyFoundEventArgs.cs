@@ -14,6 +14,7 @@ namespace Mustache
         internal KeyFoundEventArgs(string key, object value)
         {
             Key = key;
+            Substitute = value;
         }
 
         /// <summary>
