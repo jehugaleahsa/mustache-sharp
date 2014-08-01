@@ -65,7 +65,7 @@ namespace Mustache
 
         private bool isConditionSatisfied(object condition)
         {
-            if (condition == null)
+            if (condition == null || condition == DBNull.Value)
             {
                 return false;
             }

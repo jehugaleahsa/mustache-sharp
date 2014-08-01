@@ -796,6 +796,110 @@ Middle";
         /// If the condition evaluates to false, the content of an if statement should not be printed.
         /// </summary>
         [TestMethod]
+        public void TestCompile_If_null_SkipsContent()
+        {
+            FormatCompiler parser = new FormatCompiler();
+            const string format = "Before{{#if this}}Content{{/if}}After";
+            Generator generator = parser.Compile(format);
+            string result = generator.Render(null);
+            Assert.AreEqual("BeforeAfter", result, "The wrong text was generated.");
+        }
+
+        /// <summary>
+        /// If the condition evaluates to false, the content of an if statement should not be printed.
+        /// </summary>
+        [TestMethod]
+        public void TestCompile_If_DBNull_SkipsContent()
+        {
+            FormatCompiler parser = new FormatCompiler();
+            const string format = "Before{{#if this}}Content{{/if}}After";
+            Generator generator = parser.Compile(format);
+            string result = generator.Render(DBNull.Value);
+            Assert.AreEqual("BeforeAfter", result, "The wrong text was generated.");
+        }
+
+        /// <summary>
+        /// If the condition evaluates to false, the content of an if statement should not be printed.
+        /// </summary>
+        [TestMethod]
+        public void TestCompile_If_EmptyIEnumerable_SkipsContent()
+        {
+            FormatCompiler parser = new FormatCompiler();
+            const string format = "Before{{#if this}}Content{{/if}}After";
+            Generator generator = parser.Compile(format);
+            string result = generator.Render(Enumerable.Empty<int>());
+            Assert.AreEqual("BeforeAfter", result, "The wrong text was generated.");
+        }
+
+        /// <summary>
+        /// If the condition evaluates to false, the content of an if statement should not be printed.
+        /// </summary>
+        [TestMethod]
+        public void TestCompile_If_NullChar_SkipsContent()
+        {
+            FormatCompiler parser = new FormatCompiler();
+            const string format = "Before{{#if this}}Content{{/if}}After";
+            Generator generator = parser.Compile(format);
+            string result = generator.Render('\0');
+            Assert.AreEqual("BeforeAfter", result, "The wrong text was generated.");
+        }
+
+        /// <summary>
+        /// If the condition evaluates to false, the content of an if statement should not be printed.
+        /// </summary>
+        [TestMethod]
+        public void TestCompile_If_ZeroInt_SkipsContent()
+        {
+            FormatCompiler parser = new FormatCompiler();
+            const string format = "Before{{#if this}}Content{{/if}}After";
+            Generator generator = parser.Compile(format);
+            string result = generator.Render(0);
+            Assert.AreEqual("BeforeAfter", result, "The wrong text was generated.");
+        }
+
+        /// <summary>
+        /// If the condition evaluates to false, the content of an if statement should not be printed.
+        /// </summary>
+        [TestMethod]
+        public void TestCompile_If_ZeroFloat_SkipsContent()
+        {
+            FormatCompiler parser = new FormatCompiler();
+            const string format = "Before{{#if this}}Content{{/if}}After";
+            Generator generator = parser.Compile(format);
+            string result = generator.Render(0f);
+            Assert.AreEqual("BeforeAfter", result, "The wrong text was generated.");
+        }
+
+        /// <summary>
+        /// If the condition evaluates to false, the content of an if statement should not be printed.
+        /// </summary>
+        [TestMethod]
+        public void TestCompile_If_ZeroDouble_SkipsContent()
+        {
+            FormatCompiler parser = new FormatCompiler();
+            const string format = "Before{{#if this}}Content{{/if}}After";
+            Generator generator = parser.Compile(format);
+            string result = generator.Render(0.0);
+            Assert.AreEqual("BeforeAfter", result, "The wrong text was generated.");
+        }
+
+        /// <summary>
+        /// If the condition evaluates to false, the content of an if statement should not be printed.
+        /// </summary>
+        [TestMethod]
+        public void TestCompile_If_ZeroDecimal_SkipsContent()
+        {
+            FormatCompiler parser = new FormatCompiler();
+            const string format = "Before{{#if this}}Content{{/if}}After";
+            Generator generator = parser.Compile(format);
+            string result = generator.Render(0m);
+            Assert.AreEqual("BeforeAfter", result, "The wrong text was generated.");
+        }
+
+        /// <summary>
+        /// If the condition evaluates to false, the content of an if statement should not be printed.
+        /// </summary>
+        [TestMethod]
         public void TestCompile_If_EvaluatesToTrue_PrintsContent()
         {
             FormatCompiler parser = new FormatCompiler();
@@ -920,7 +1024,7 @@ Content{{/if}}";
         /// If the a header follows a footer, it shouldn't generate a new line.
         /// </summary>
         [TestMethod]
-        public void TestCompile_IfNewLineContentNewLineEndIfIfNewLineContenNewLineEndIf_PrintsContent()
+        public void TestCompile_IfNewLineContentNewLineEndIfIfNewLineContentNewLineEndIf_PrintsContent()
         {
             FormatCompiler parser = new FormatCompiler();
             const string format = @"{{#if this}}
