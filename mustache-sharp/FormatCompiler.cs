@@ -15,12 +15,26 @@ namespace Mustache
         private readonly Dictionary<string, TagDefinition> _tagLookup;
         private readonly Dictionary<string, Regex> _regexLookup;
         private readonly MasterTagDefinition _masterDefinition;
+        private readonly string _startTag;
+        private readonly string _endTag;
+
 
         /// <summary>
         /// Initializes a new instance of a FormatCompiler.
         /// </summary>
         public FormatCompiler()
+            : this("{{", "}}")
         {
+
+        }
+        /// <summary>
+        /// Initializes a new instance of a FormatCompiler.
+        /// </summary>
+        public FormatCompiler(string startTag, string endTag)
+        {
+            _startTag = startTag;
+            _endTag = endTag;
+
             _tagLookup = new Dictionary<string, TagDefinition>();
             _regexLookup = new Dictionary<string, Regex>();
             _masterDefinition = new MasterTagDefinition();
@@ -129,7 +143,7 @@ namespace Mustache
                     matches.Add(getTagRegex(childDefinition));
                 }
                 matches.Add(getUnknownTagRegex());
-                string match = "{{(" + String.Join("|", matches) + ")}}";
+                string match = string.Format("{0}(" + String.Join("|", matches) + "){1}", _startTag, _endTag);
                 regex = new Regex(match);
                 _regexLookup.Add(definition.Name, regex);
             }
@@ -325,7 +339,7 @@ namespace Mustache
                 string value = null;
                 if (pair.Capture != null)
                 {
-                    value = pair.Capture.Value;                    
+                    value = pair.Capture.Value;
                 }
                 else if (pair.Parameter.IsRequired)
                 {
