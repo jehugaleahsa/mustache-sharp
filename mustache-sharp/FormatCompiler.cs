@@ -12,15 +12,21 @@ namespace Mustache
     /// </summary>
     public sealed class FormatCompiler
     {
+        private readonly IStringEncoder _encoder;
         private readonly Dictionary<string, TagDefinition> _tagLookup;
         private readonly Dictionary<string, Regex> _regexLookup;
         private readonly MasterTagDefinition _masterDefinition;
 
+        public FormatCompiler() : this(new PlainTextEncoder())
+        {
+        }
+
         /// <summary>
         /// Initializes a new instance of a FormatCompiler.
         /// </summary>
-        public FormatCompiler()
+        public FormatCompiler(IStringEncoder encoder)
         {
+            _encoder = encoder;
             _tagLookup = new Dictionary<string, TagDefinition>();
             _regexLookup = new Dictionary<string, Regex>();
             _masterDefinition = new MasterTagDefinition();
@@ -110,6 +116,7 @@ namespace Mustache
             if (!_regexLookup.TryGetValue(definition.Name, out regex))
             {
                 List<string> matches = new List<string>();
+                matches.Add(getUnescapedKeyRegex());
                 matches.Add(getKeyRegex());
                 matches.Add(getCommentTagRegex());
                 foreach (string closingTag in definition.ClosingTags)
@@ -153,6 +160,11 @@ namespace Mustache
         private static string getKeyRegex()
         {
             return @"((?<key>" + RegexHelper.CompoundKey + @")(,(?<alignment>(\+|-)?[\d]+))?(:(?<format>.*?))?)";
+        }
+
+        private static string getUnescapedKeyRegex()
+        {
+            return @"& *(?<literal_key>" + RegexHelper.CompoundKey + @")|{(?<literal_key>" + RegexHelper.CompoundKey + @")}";
         }
 
         private static string getTagRegex(TagDefinition definition)
@@ -203,7 +215,32 @@ namespace Mustache
 
                 string leading = format.Substring(formatIndex, match.Index - formatIndex);
 
-                if (match.Groups["key"].Success)
+                if (match.Groups["literal_key"].Success)
+                {
+                    generator.AddGenerator(new StaticGenerator(leading, RemoveNewLines));
+                    formatIndex = match.Index + match.Length;
+                    string key = match.Groups["literal_key"].Value;
+                    if (key.StartsWith("@"))
+                    {
+                        VariableFoundEventArgs args = new VariableFoundEventArgs(key.Substring(1), null, null, context.ToArray());
+                        if (VariableFound != null)
+                        {
+                            VariableFound(this, args);
+                            key = "@" + args.Name;
+                        }
+                    }
+                    else
+                    {
+                        PlaceholderFoundEventArgs args = new PlaceholderFoundEventArgs(key, null, null, context.ToArray());
+                        if (PlaceholderFound != null)
+                        {
+                            PlaceholderFound(this, args);
+                            key = args.Key;
+                        }
+                    }
+                    LiteralKeyGenerator keyGenerator = new LiteralKeyGenerator(key);
+                    generator.AddGenerator(keyGenerator);
+                } else if (match.Groups["key"].Success)
                 {
                     generator.AddGenerator(new StaticGenerator(leading, RemoveNewLines));
                     formatIndex = match.Index + match.Length;
@@ -232,7 +269,7 @@ namespace Mustache
                             formatting = args.Formatting;
                         }
                     }
-                    KeyGenerator keyGenerator = new KeyGenerator(key, alignment, formatting);
+                    KeyGenerator keyGenerator = new KeyGenerator(key, alignment, formatting, _encoder);
                     generator.AddGenerator(keyGenerator);
                 }
                 else if (match.Groups["open"].Success)
@@ -276,7 +313,6 @@ namespace Mustache
                 {
                     generator.AddGenerator(new StaticGenerator(leading, RemoveNewLines));
                     string tagName = match.Groups["name"].Value;
-                    TagDefinition nextDefinition = _tagLookup[tagName];
                     formatIndex = match.Index;
                     if (tagName == tagDefinition.Name)
                     {

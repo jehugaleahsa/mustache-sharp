@@ -1492,6 +1492,41 @@ Odd
 
         #endregion
 
+        #region Html Encoding
+        [TestMethod]
+        public void TestCompile_HtmlEncoder_EscapesHtmlInRegularKeyTags()
+        {
+            var compiler = new FormatCompiler(new HtmlEncoder());
+            const string format = @"Hello, {{this}}";
+            var generator = compiler.Compile(format);
+            const string expected = @"Hello, &lt;b&gt;Bob&lt;/b&gt;";
+            var actual = generator.Render("<b>Bob</b>");
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void TestCompile_HtmlEncoder_DoesNotEscapeHtmlWithTripleMustache()
+        {
+            var compiler = new FormatCompiler(new HtmlEncoder());
+            const string format = @"Hello, {{{this}}}";
+            var generator = compiler.Compile(format);
+            const string expected = @"Hello, <b>Bob</b>";
+            var actual = generator.Render("<b>Bob</b>");
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void TestCompile_HtmlEncoder_DoesNotEscapeHtmlWithAmprisand()
+        {
+            var compiler = new FormatCompiler(new HtmlEncoder());
+            const string format = @"Hello, {{&this}}";
+            var generator = compiler.Compile(format);
+            const string expected = @"Hello, <b>Bob</b>";
+            var actual = generator.Render("<b>Bob</b>");
+            Assert.AreEqual(expected, actual);
+        }
+        #endregion
+
         #region Strings
 
         /// <summary>
