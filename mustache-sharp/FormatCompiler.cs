@@ -143,7 +143,7 @@ namespace Mustache
                     matches.Add(getTagRegex(childDefinition));
                 }
                 matches.Add(getUnknownTagRegex());
-                string match = string.Format("{0}(" + String.Join("|", matches) + "){1}", _startTag, _endTag);
+                string match = _startTag + "(" + String.Join("|", matches) + ")" + _endTag;
                 regex = new Regex(match);
                 _regexLookup.Add(definition.Name, regex);
             }
