@@ -15,6 +15,7 @@ namespace Mustache
         private readonly Dictionary<string, TagDefinition> _tagLookup;
         private readonly Dictionary<string, Regex> _regexLookup;
         private readonly MasterTagDefinition _masterDefinition;
+        private const string RegexPiecesFormatter = "{0}|";
 
         /// <summary>
         /// Initializes a new instance of a FormatCompiler.
@@ -107,42 +108,65 @@ namespace Mustache
         private Regex prepareRegex(TagDefinition definition)
         {
             Regex regex;
+
             if (!_regexLookup.TryGetValue(definition.Name, out regex))
             {
-                List<string> matches = new List<string>();
-                matches.Add(getKeyRegex());
-                matches.Add(getCommentTagRegex());
+                var regexPieces = new StringBuilder("{{(");
+
+                regexPieces.AppendFormat(RegexPiecesFormatter, getKeyRegex());
+                regexPieces.AppendFormat(RegexPiecesFormatter, getCommentTagRegex());
+
                 foreach (string closingTag in definition.ClosingTags)
                 {
-                    matches.Add(getClosingTagRegex(closingTag));
+                    regexPieces.AppendFormat(RegexPiecesFormatter, getClosingTagRegex(closingTag));
                 }
+
                 foreach (TagDefinition globalDefinition in _tagLookup.Values)
                 {
                     if (!globalDefinition.IsContextSensitive)
                     {
-                        matches.Add(getTagRegex(globalDefinition));
+                        regexPieces.AppendFormat(RegexPiecesFormatter, getTagRegex(globalDefinition));
                     }
                 }
+
                 foreach (string childTag in definition.ChildTags)
                 {
                     TagDefinition childDefinition = _tagLookup[childTag];
-                    matches.Add(getTagRegex(childDefinition));
+                    regexPieces.AppendFormat(RegexPiecesFormatter, getTagRegex(childDefinition));
                 }
-                matches.Add(getUnknownTagRegex());
-                string match = "{{(" + String.Join("|", matches) + ")}}";
-                regex = new Regex(match);
+
+                regexPieces.AppendFormat(RegexPiecesFormatter, GetHelperTagRegex());
+                regexPieces.Append(getUnknownTagRegex());
+                regexPieces.Append(")}}");
+
+                regex = new Regex(regexPieces.ToString());
                 _regexLookup.Add(definition.Name, regex);
             }
+
             return regex;
         }
 
-        private static string getClosingTagRegex(string tagName)
+        /// <summary>
+        /// A regex that looks for a Handlebars style helper.
+        /// </summary>
+        /// <example>
+        /// Your item will be shipper on {{ formatDate ShippingDate }}.
+        /// </example>
+        /// <returns></returns>
+        private static string GetHelperTagRegex()
+        {
+            return @"(?<open>(?<name>[^\s]+)\s+?(?<argument>[^\s]+)\s*?)";
+        }
+
+        private static StringBuilder getClosingTagRegex(string tagName)
         {
             StringBuilder regexBuilder = new StringBuilder();
+
             regexBuilder.Append(@"(?<close>(/(?<name>");
             regexBuilder.Append(tagName);
             regexBuilder.Append(@")\s*?))");
-            return regexBuilder.ToString();
+
+            return regexBuilder;
         }
 
         private static string getCommentTagRegex()
@@ -155,9 +179,10 @@ namespace Mustache
             return @"((?<key>" + RegexHelper.CompoundKey + @")(,(?<alignment>(\+|-)?[\d]+))?(:(?<format>.*?))?)";
         }
 
-        private static string getTagRegex(TagDefinition definition)
+        private static StringBuilder getTagRegex(TagDefinition definition)
         {
             StringBuilder regexBuilder = new StringBuilder();
+
             regexBuilder.Append(@"(?<open>(#(?<name>");
             regexBuilder.Append(definition.Name);
             regexBuilder.Append(@")");
@@ -172,8 +197,10 @@ namespace Mustache
                     regexBuilder.Append("?");
                 }
             }
+
             regexBuilder.Append(@"\s*?))");
-            return regexBuilder.ToString();
+
+            return regexBuilder;
         }
 
         private string getUnknownTagRegex()
