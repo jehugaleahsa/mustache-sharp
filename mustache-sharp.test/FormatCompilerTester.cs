@@ -1363,7 +1363,7 @@ Your order total was: {{Total:C}}
 {{/if}}
 {{/with}}";
             Generator generator = compiler.Compile(format);
-            string result = generator.Render(new
+            string result = generator.Render(new System.Globalization.CultureInfo("en-US"), new
             {
                 Customer = new { FirstName = "Bob" },
                 Order = new
