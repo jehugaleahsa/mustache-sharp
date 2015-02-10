@@ -529,6 +529,27 @@ Content";
             public new T Value { get; set; }
         }
 
+		/// <summary>
+		/// Access array elements and this
+		/// </summary>
+		[TestMethod]
+		public void TestCompile_Access_Arrays_And_This() {
+			FormatCompiler compiler = new FormatCompiler();
+			const string format = @"Hello, {{Array.[0]}} {{O.[1]}} {{O.[Good evening]}}!!!";
+			Generator generator = compiler.Compile(format);
+			string result = generator.Render(new { O = new ThisAccessor(), Array = new string[] { "Element 0", "Element 1" } });
+			Assert.AreEqual("Hello, Element 0 1 Good evening!!!", result, "The wrong text was generated.");
+		}
+
+		public class ThisAccessor {
+			public string this[int i] {
+				get { return i.ToString(); }
+			}
+
+			public string this[string s] {
+				get { return s; }
+			}
+		}
         #endregion
 
         #region Comment
