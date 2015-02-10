@@ -14,6 +14,6 @@ using System.Runtime.InteropServices;
 [assembly: CLSCompliant(true)]
 [assembly: ComVisible(false)]
 [assembly: Guid("e5a4263d-d450-4d85-a4d5-44c0a2822668")]
-[assembly: AssemblyVersion("0.2.8.1")]
-[assembly: AssemblyFileVersion("0.2.8.1")]
+[assembly: AssemblyVersion("0.2.8.2")]
+[assembly: AssemblyFileVersion("0.2.8.2")]
 [assembly: InternalsVisibleTo("mustache-sharp.test")]
