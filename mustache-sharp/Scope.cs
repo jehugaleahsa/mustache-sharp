@@ -237,7 +237,7 @@ namespace Mustache
 						if (dic.TryGetThisValue(i, out value)) return true;
 					}
 					Array array = dic.Instance as Array;
-					if (array != null && i < array.GetUpperBound(0)) {
+					if (array != null && i <= array.GetUpperBound(0)) {
 						value = array.GetValue(i);
 						return true;
 					}

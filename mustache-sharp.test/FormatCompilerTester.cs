@@ -541,6 +541,16 @@ Content";
 			Assert.AreEqual("Hello, Element 0 1 Good evening!!!", result, "The wrong text was generated.");
 		}
 
+        [TestMethod]
+        public void TestCompile_Access_Arrays_And_This_With_One_Element()
+        {
+            FormatCompiler compiler = new FormatCompiler();
+            const string format = @"Hello, {{Array.[0]}}!!!";
+            Generator generator = compiler.Compile(format);
+            string result = generator.Render(new { Array = new string[] { "Element 0"} });
+            Assert.AreEqual("Hello, Element 0!!!", result, "The wrong text was generated.");
+        }
+
 		public class ThisAccessor {
 			public string this[int i] {
 				get { return i.ToString(); }
