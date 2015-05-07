@@ -47,7 +47,7 @@ Each format item takes the following form and consists of the following componen
 The matching braces are required. Notice that they are double curly braces! The alignment and the format strings are optional and match the syntax accepted by `String.Format`. Refer to [String.Format](http://msdn.microsoft.com/en-us/library/system.string.format.aspx)'s documentation to learn more about the standard and custom format strings.
 
 ### Placeholder Scope
-The identifier is used to find a property with a matching name. If you want to print out the object itself, you can use the special identifier `this`.
+The identifier is used to find a property with a matching name. If you want to print out the object itself, you can use the special identifier `this`. It's also useful for iterating through lists of strings.
 
     FormatCompiler compiler = new FormatCompiler();
     Generator generator = compiler.Compile("Hello, {{this}}!!!");
