@@ -1,5 +1,4 @@
 ﻿using System;
-using Mustache.Properties;
 
 namespace Mustache
 {

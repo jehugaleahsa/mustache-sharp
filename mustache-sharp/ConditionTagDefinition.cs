@@ -65,8 +65,13 @@ namespace Mustache
 
         private bool isConditionSatisfied(object condition)
         {
+#if NET45
             if (condition == null || condition == DBNull.Value)
             {
+#else
+            if (condition == null)
+            {
+#endif
                 return false;
             }
             IEnumerable enumerable = condition as IEnumerable;

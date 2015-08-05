@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using Mustache.Properties;
 
 namespace Mustache
 {
@@ -73,7 +72,7 @@ namespace Mustache
             }
             if (_tagLookup.ContainsKey(definition.Name))
             {
-                string message = String.Format(Resources.DuplicateTagDefinition, definition.Name);
+                string message = Resources.DuplicateTagDefinition(definition.Name);
                 throw new ArgumentException(message, "definition");
             }
             _tagLookup.Add(definition.Name, definition);
@@ -195,7 +194,7 @@ namespace Mustache
                 {
                     if (tagDefinition.ClosingTags.Any())
                     {
-                        string message = String.Format(Resources.MissingClosingTag, tagDefinition.Name);
+                        string message = Resources.MissingClosingTag(tagDefinition.Name);
                         throw new FormatException(message);
                     }
                     break;
@@ -242,7 +241,7 @@ namespace Mustache
                     TagDefinition nextDefinition = _tagLookup[tagName];
                     if (nextDefinition == null)
                     {
-                        string message = String.Format(Resources.UnknownTag, tagName);
+                        string message = Resources.UnknownTag(tagName);
                         throw new FormatException(message);
                     }
 
@@ -292,7 +291,7 @@ namespace Mustache
                 else if (match.Groups["unknown"].Success)
                 {
                     string tagName = match.Value;
-                    string message = String.Format(Resources.UnknownTag, tagName);
+                    string message = Resources.UnknownTag(tagName);
                     throw new FormatException(message);
                 }
             }
@@ -306,7 +305,7 @@ namespace Mustache
             List<TagParameter> parameters = definition.Parameters.ToList();
             if (captures.Count > parameters.Count)
             {
-                string message = String.Format(Resources.WrongNumberOfArguments, definition.Name);
+                string message = Resources.WrongNumberOfArguments(definition.Name);
                 throw new FormatException(message);
             }
 
@@ -329,7 +328,7 @@ namespace Mustache
                 }
                 else if (pair.Parameter.IsRequired)
                 {
-                    string message = String.Format(Resources.WrongNumberOfArguments, definition.Name);
+                    string message = Resources.WrongNumberOfArguments(definition.Name);
                     throw new FormatException(message);
                 }
                 arguments.Add(pair.Parameter, value);
