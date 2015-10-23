@@ -152,7 +152,7 @@ namespace Mustache
 
         private static string getKeyRegex()
         {
-            return @"((?<key>" + RegexHelper.CompoundKey + @")(,(?<alignment>(\+|-)?[\d]+))?(:(?<format>.*?))?)";
+            return @"((?<key>@?" + RegexHelper.CompoundKeyOrArrayAccess + @")(,(?<alignment>(\+|-)?[\d]+))?(:(?<format>.*?))?)";
         }
 
         private static string getTagRegex(TagDefinition definition)
@@ -164,7 +164,7 @@ namespace Mustache
             foreach (TagParameter parameter in definition.Parameters)
             {
                 regexBuilder.Append(@"(\s+?");
-                regexBuilder.Append(@"(?<argument>(");
+                regexBuilder.Append(@"(?<argument>(@?");
                 regexBuilder.Append(RegexHelper.Argument);
                 regexBuilder.Append(@")))");
                 if (!parameter.IsRequired)

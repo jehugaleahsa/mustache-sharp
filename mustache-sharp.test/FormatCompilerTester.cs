@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -528,6 +529,37 @@ Content";
             public new T Value { get; set; }
         }
 
+		/// <summary>
+		/// Access array elements and this
+		/// </summary>
+		[TestMethod]
+		public void TestCompile_Access_Arrays_And_This() {
+			FormatCompiler compiler = new FormatCompiler();
+			const string format = @"Hello, {{Array.[0]}} {{O.[1]}} {{O.[Good evening]}}!!!";
+			Generator generator = compiler.Compile(format);
+			string result = generator.Render(new { O = new ThisAccessor(), Array = new string[] { "Element 0", "Element 1" } });
+			Assert.AreEqual("Hello, Element 0 1 Good evening!!!", result, "The wrong text was generated.");
+		}
+
+        [TestMethod]
+        public void TestCompile_Access_Arrays_And_This_With_One_Element()
+        {
+            FormatCompiler compiler = new FormatCompiler();
+            const string format = @"Hello, {{Array.[0]}}!!!";
+            Generator generator = compiler.Compile(format);
+            string result = generator.Render(new { Array = new string[] { "Element 0"} });
+            Assert.AreEqual("Hello, Element 0!!!", result, "The wrong text was generated.");
+        }
+
+		public class ThisAccessor {
+			public string this[int i] {
+				get { return i.ToString(); }
+			}
+
+			public string this[string s] {
+				get { return s; }
+			}
+		}
         #endregion
 
         #region Comment
@@ -1363,7 +1395,7 @@ Your order total was: {{Total:C}}
 {{/if}}
 {{/with}}";
             Generator generator = compiler.Compile(format);
-            string result = generator.Render(new
+            string result = generator.Render(new CultureInfo("en-US"), new
             {
                 Customer = new { FirstName = "Bob" },
                 Order = new
