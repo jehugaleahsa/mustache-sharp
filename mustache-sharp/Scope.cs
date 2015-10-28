@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using Mustache.Properties;
-
 namespace Mustache
 {
     /// <summary>
@@ -90,7 +88,7 @@ namespace Mustache
             {
                 return value;
             }
-            string message = String.Format(CultureInfo.CurrentCulture, Resources.KeyNotFound, results.Member);
+            string message = Resources.KeyNotFound(results.Member);
             throw new KeyNotFoundException(message);
         }
 

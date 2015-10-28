@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Mustache.Properties;
 using System.IO;
 
 namespace Mustache

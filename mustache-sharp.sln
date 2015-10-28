@@ -1,14 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mustache-sharp", "mustache-sharp\mustache-sharp.csproj", "{D71B378F-A4BA-4263-A4F0-07A49A0C528D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mustache-sharp.test", "mustache-sharp.test\mustache-sharp.test.csproj", "{7F607362-0680-4751-B1DC-621219294AE3}"
 EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "mustache-sharp-dotnet", "mustache-sharp\mustache-sharp-dotnet.xproj", "{D716CD80-D046-49CD-8F2A-6A82360DD0D0}"
+EndProject
 Global
-	GlobalSection(TestCaseManagementSettings) = postSolution
-		CategoryFile = mustache-sharp.vsmdi
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -22,8 +23,15 @@ Global
 		{7F607362-0680-4751-B1DC-621219294AE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7F607362-0680-4751-B1DC-621219294AE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7F607362-0680-4751-B1DC-621219294AE3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D716CD80-D046-49CD-8F2A-6A82360DD0D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D716CD80-D046-49CD-8F2A-6A82360DD0D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D716CD80-D046-49CD-8F2A-6A82360DD0D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D716CD80-D046-49CD-8F2A-6A82360DD0D0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = mustache-sharp.vsmdi
 	EndGlobalSection
 EndGlobal

@@ -1,0 +1,22 @@
+{
+  "name": "mustache-sharp",
+  "version": "0.3.0",
+  "namedResource": {
+    "mustache-sharp.Resources": "Properties/Resources.resx"
+  },
+  "frameworks": {
+    "net45": { },
+    "dotnet": {
+      "dependencies": {
+        "System.Collections": "4.0.10",
+        "System.Linq": "4.0.0",
+        "System.Reflection": "4.0.0",
+        "System.Reflection.Extensions": "4.0.0",
+        "System.Runtime": "4.0.20",
+        "System.Runtime.InteropServices": "4.0.20",
+        "System.Text.RegularExpressions": "4.0.0",
+        "System.Threading": "4.0.10"
+      }
+    }
+  }
+}
