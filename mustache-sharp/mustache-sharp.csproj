@@ -38,6 +38,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Web" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ArgumentCollection.cs" />
@@ -46,7 +47,11 @@
     <Compile Include="ContentTagDefinition.cs" />
     <Compile Include="Context.cs" />
     <Compile Include="ContextParameter.cs" />
+    <Compile Include="HtmlEncoder.cs" />
+    <Compile Include="PlainTextEncoder.cs" />
+    <Compile Include="LiteralKeyGenerator.cs" />
     <Compile Include="IArgument.cs" />
+    <Compile Include="IStringEncoder.cs" />
     <Compile Include="NumberArgument.cs" />
     <Compile Include="PlaceholderArgument.cs" />
     <Compile Include="StringArgument.cs" />

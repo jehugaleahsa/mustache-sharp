@@ -9,6 +9,7 @@ namespace Mustache
     /// </summary>
     internal sealed class KeyGenerator : IGenerator
     {
+        private readonly IStringEncoder _encoder;
         private readonly string _key;
         private readonly string _format;
         private readonly bool _isVariable;
@@ -19,8 +20,10 @@ namespace Mustache
         /// <param name="key">The key to substitute with its value.</param>
         /// <param name="alignment">The alignment specifier.</param>
         /// <param name="formatting">The format specifier.</param>
-        public KeyGenerator(string key, string alignment, string formatting)
+        /// <param name="encoder">The encoder (i.e. HTML to escape the resulting string)</param>
+        public KeyGenerator(string key, string alignment, string formatting, IStringEncoder encoder)
         {
+            _encoder = encoder;
             if (key.StartsWith("@"))
             {
                 _key = key.Substring(1);
@@ -36,7 +39,7 @@ namespace Mustache
 
         private static string getFormat(string alignment, string formatting)
         {
-            StringBuilder formatBuilder = new StringBuilder();
+            var formatBuilder = new StringBuilder();
             formatBuilder.Append("{0");
             if (!String.IsNullOrWhiteSpace(alignment))
             {
@@ -55,7 +58,7 @@ namespace Mustache
         void IGenerator.GetText(Scope scope, TextWriter writer, Scope context)
         {
             object value = _isVariable ? context.Find(_key) : scope.Find(_key);
-            writer.Write(_format, value);
+            _encoder.WriteEncoded(string.Format(_format, value), writer);
         }
     }
 }
