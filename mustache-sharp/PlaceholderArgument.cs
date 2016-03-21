@@ -18,7 +18,7 @@ namespace Mustache
 
         public object GetValue(Scope keyScope, Scope contextScope)
         {
-            return keyScope.Find(name);
+            return keyScope.Find(name, false);
         }
     }
 }

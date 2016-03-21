@@ -12,6 +12,7 @@ namespace Mustache
         private readonly string _key;
         private readonly string _format;
         private readonly bool _isVariable;
+        private readonly bool _isExtension;
 
         /// <summary>
         /// Initializes a new instance of a KeyGenerator.
@@ -19,7 +20,8 @@ namespace Mustache
         /// <param name="key">The key to substitute with its value.</param>
         /// <param name="alignment">The alignment specifier.</param>
         /// <param name="formatting">The format specifier.</param>
-        public KeyGenerator(string key, string alignment, string formatting)
+        /// <param name="isExtension">Specifies whether the key was found within triple curly braces.</param>
+        public KeyGenerator(string key, string alignment, string formatting, bool isExtension)
         {
             if (key.StartsWith("@"))
             {
@@ -32,6 +34,7 @@ namespace Mustache
                 _isVariable = false;
             }
             _format = getFormat(alignment, formatting);
+            _isExtension = isExtension;
         }
 
         private static string getFormat(string alignment, string formatting)
@@ -52,10 +55,18 @@ namespace Mustache
             return formatBuilder.ToString();
         }
 
-        void IGenerator.GetText(Scope scope, TextWriter writer, Scope context)
+        void IGenerator.GetText(TextWriter writer, Scope scope, Scope context, Action<Substitution> postProcessor)
         {
-            object value = _isVariable ? context.Find(_key) : scope.Find(_key);
-            writer.Write(_format, value);
+            object value = _isVariable ? context.Find(_key, _isExtension) : scope.Find(_key, _isExtension);
+            string result = String.Format(writer.FormatProvider, _format, value);
+            Substitution substitution = new Substitution()
+            {
+                Key = _key,
+                Substitute = result,
+                IsExtension = _isExtension
+            };
+            postProcessor(substitution);
+            writer.Write(substitution.Substitute);
         }
     }
 }

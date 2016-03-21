@@ -33,7 +33,7 @@ namespace Mustache
             get { return value; }
         }
 
-        void IGenerator.GetText(Scope scope, TextWriter writer, Scope context)
+        void IGenerator.GetText(TextWriter writer, Scope scope, Scope context, Action<Substitution> postProcessor)
         {
             writer.Write(Value);
         }

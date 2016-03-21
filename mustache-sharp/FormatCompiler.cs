@@ -61,6 +61,11 @@ namespace Mustache
         public bool RemoveNewLines { get; set; }
 
         /// <summary>
+        /// Gets or sets whether the compiler searches for tags using triple curly braces.
+        /// </summary>
+        public bool AreExtensionTagsAllowed { get; set; }
+
+        /// <summary>
         /// Registers the given tag definition with the parser.
         /// </summary>
         /// <param name="definition">The tag definition to register.</param>
@@ -129,7 +134,13 @@ namespace Mustache
                     matches.Add(getTagRegex(childDefinition));
                 }
                 matches.Add(getUnknownTagRegex());
-                string match = "{{(" + String.Join("|", matches) + ")}}";
+                string combined = String.Join("|", matches);
+                string match = "{{(?<match>" + combined + ")}}";
+                if (AreExtensionTagsAllowed)
+                {
+                    string tripleMatch = "{{{(?<extension>" + combined + ")}}}";
+                    match = "(?:" + match + ")|(?:" + tripleMatch + ")";
+                }
                 regex = new Regex(match);
                 _regexLookup.Add(definition.Name, regex);
             }
@@ -176,7 +187,7 @@ namespace Mustache
             return regexBuilder.ToString();
         }
 
-        private string getUnknownTagRegex()
+        private static string getUnknownTagRegex()
         {
             return @"(?<unknown>(#.*?))";
         }
@@ -207,32 +218,35 @@ namespace Mustache
                 {
                     generator.AddGenerator(new StaticGenerator(leading, RemoveNewLines));
                     formatIndex = match.Index + match.Length;
+                    bool isExtension = match.Groups["extension"].Success;
                     string key = match.Groups["key"].Value;
                     string alignment = match.Groups["alignment"].Value;
                     string formatting = match.Groups["format"].Value;
                     if (key.StartsWith("@"))
                     {
-                        VariableFoundEventArgs args = new VariableFoundEventArgs(key.Substring(1), alignment, formatting, context.ToArray());
+                        VariableFoundEventArgs args = new VariableFoundEventArgs(key.Substring(1), alignment, formatting, isExtension, context.ToArray());
                         if (VariableFound != null)
                         {
                             VariableFound(this, args);
                             key = "@" + args.Name;
                             alignment = args.Alignment;
                             formatting = args.Formatting;
+                            isExtension = args.IsExtension;
                         }
                     }
                     else
                     {
-                        PlaceholderFoundEventArgs args = new PlaceholderFoundEventArgs(key, alignment, formatting, context.ToArray());
+                        PlaceholderFoundEventArgs args = new PlaceholderFoundEventArgs(key, alignment, formatting, isExtension, context.ToArray());
                         if (PlaceholderFound != null)
                         {
                             PlaceholderFound(this, args);
                             key = args.Key;
                             alignment = args.Alignment;
                             formatting = args.Formatting;
+                            isExtension = args.IsExtension;
                         }
                     }
-                    KeyGenerator keyGenerator = new KeyGenerator(key, alignment, formatting);
+                    KeyGenerator keyGenerator = new KeyGenerator(key, alignment, formatting, isExtension);
                     generator.AddGenerator(keyGenerator);
                 }
                 else if (match.Groups["open"].Success)
@@ -347,7 +361,7 @@ namespace Mustache
                     if (placeholder.StartsWith("@"))
                     {
                         string variableName = placeholder.Substring(1);
-                        VariableFoundEventArgs args = new VariableFoundEventArgs(placeholder.Substring(1), String.Empty, String.Empty, context.ToArray());
+                        VariableFoundEventArgs args = new VariableFoundEventArgs(placeholder.Substring(1), String.Empty, String.Empty, false, context.ToArray());
                         if (VariableFound != null)
                         {
                             VariableFound(this, args);
@@ -371,7 +385,7 @@ namespace Mustache
                     else
                     {
                         string placeholderName = placeholder;
-                        PlaceholderFoundEventArgs args = new PlaceholderFoundEventArgs(placeholder, String.Empty, String.Empty, context.ToArray());
+                        PlaceholderFoundEventArgs args = new PlaceholderFoundEventArgs(placeholder, String.Empty, String.Empty, false, context.ToArray());
                         if (PlaceholderFound != null)
                         {
                             PlaceholderFound(this, args);

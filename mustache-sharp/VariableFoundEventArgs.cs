@@ -14,12 +14,14 @@ namespace Mustache
         /// <param name="key">The key that was found.</param>
         /// <param name="alignment">The alignment that will be applied to the substitute value.</param>
         /// <param name="formatting">The formatting that will be applied to the substitute value.</param>
+        /// <param name="isExtension">Specifies whether the variable was found within triple curly braces.</param>
         /// <param name="context">The context where the placeholder was found.</param>
-        internal VariableFoundEventArgs(string name, string alignment, string formatting, Context[] context)
+        internal VariableFoundEventArgs(string name, string alignment, string formatting, bool isExtension, Context[] context)
         {
             Name = name;
             Alignment = alignment;
             Formatting = formatting;
+            IsExtension = isExtension;
             Context = context;
         }
 
@@ -37,6 +39,11 @@ namespace Mustache
         /// Gets or sets the formatting that will be applied to the substitute value.
         /// </summary>
         public string Formatting { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether variable was found within triple curly braces.
+        /// </summary>
+        public bool IsExtension { get; set; }
 
         /// <summary>
         /// Gets the context where the placeholder was found.

@@ -46,6 +46,9 @@
     <Compile Include="ContentTagDefinition.cs" />
     <Compile Include="Context.cs" />
     <Compile Include="ContextParameter.cs" />
+    <Compile Include="Substitution.cs" />
+    <Compile Include="TagFormattedEventArgs.cs" />
+    <Compile Include="HtmlFormatCompiler.cs" />
     <Compile Include="IArgument.cs" />
     <Compile Include="NumberArgument.cs" />
     <Compile Include="PlaceholderArgument.cs" />

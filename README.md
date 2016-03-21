@@ -37,7 +37,7 @@ Introducing [handlebars.js](http://handlebarsjs.com/)... If you've needed to gen
 Most of the lines in the previous example will never appear in the final output. This allows you to use **mustache#** to write templates for normal text, not just HTML/XML.
 
 ## Placeholders
-The placeholders can be any valid identifier. These map to the property names in your classes.
+The placeholders can be any valid identifier. These map to the property names in your classes (or `Dictionary` keys).
 
 ### Formatting Placeholders
 Each format item takes the following form and consists of the following components:
@@ -215,6 +215,21 @@ Here's an example of a tag that will join the items of a collection:
             writer.Write(joined);
         }
     }
+    
+## HTML Support
+**mustache#** was not originally designed to exclusively generate HTML. However, it is by far the most common use of **mustache#**. For that reason, there is a separate `HtmlFormatCompiler` class that will automatically configure the code to work with HTML documents. Particularly, this class will eliminate most newlines and escape any special HTML characters that might appear within the substituted values.
+
+If you really need to embed HTML values, you can wrap placeholders in triple quotes rather than double quotes.
+
+    HtmlFormatCompiler compiler = new HtmlFormatCompiler();
+    const string format = @"<html><body>{{escaped}} and {{{unescaped}}}</body></html>";
+    Generator generator = compiler.Compile(format);
+    string result = generator.Render(new
+    {
+        escaped = "<b>Awesome</b>",
+        unescaped = "<i>sweet</i>"
+    });
+    // Generates <html><body>&lt;b&gt;Awesome&lt;/b&gt; and <i>sweet</i></body></html>
 
 ## License
 This is free and unencumbered software released into the public domain.

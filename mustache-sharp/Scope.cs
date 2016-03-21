@@ -76,17 +76,18 @@ namespace Mustache
         /// Attempts to find the value associated with the key with given name.
         /// </summary>
         /// <param name="name">The name of the key.</param>
+        /// <param name="isExtension">Specifies whether the key appeared within triple curly braces.</param>
         /// <returns>The value associated with the key with the given name.</returns>
         /// <exception cref="System.Collections.Generic.KeyNotFoundException">A key with the given name could not be found.</exception>
-        internal object Find(string name)
+        internal object Find(string name, bool isExtension)
         {
             SearchResults results = tryFind(name);
             if (results.Found)
             {
-                return onKeyFound(name, results.Value);
+                return onKeyFound(name, results.Value, isExtension);
             }
             object value;
-            if (onKeyNotFound(name, results.Member, out value))
+            if (onKeyNotFound(name, results.Member, isExtension, out value))
             {
                 return value;
             }
@@ -94,25 +95,25 @@ namespace Mustache
             throw new KeyNotFoundException(message);
         }
 
-        private object onKeyFound(string name, object value)
+        private object onKeyFound(string name, object value, bool isExtension)
         {
             if (KeyFound == null)
             {
                 return value;
             }
-            KeyFoundEventArgs args = new KeyFoundEventArgs(name, value);
+            KeyFoundEventArgs args = new KeyFoundEventArgs(name, value, isExtension);
             KeyFound(this, args);
             return args.Substitute;
         }
 
-        private bool onKeyNotFound(string name, string member, out object value)
+        private bool onKeyNotFound(string name, string member, bool isExtension, out object value)
         {
             if (KeyNotFound == null)
             {
                 value = null;
                 return false;
             }
-            KeyNotFoundEventArgs args = new KeyNotFoundEventArgs(name, member);
+            KeyNotFoundEventArgs args = new KeyNotFoundEventArgs(name, member, isExtension);
             KeyNotFound(this, args);
             if (!args.Handled)
             {

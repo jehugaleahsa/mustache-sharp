@@ -23,7 +23,7 @@ namespace Mustache
             _arguments = arguments;
         }
 
-        void IGenerator.GetText(Scope scope, TextWriter writer, Scope context)
+        void IGenerator.GetText(TextWriter writer, Scope scope, Scope context, Action<Substitution> postProcessor)
         {
             Dictionary<string, object> arguments;
             if (_definition.IsSetter)

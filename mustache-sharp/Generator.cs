@@ -55,6 +55,11 @@ namespace Mustache
         }
 
         /// <summary>
+        /// Occurs when a tag is replaced by its text.
+        /// </summary>
+        public event EventHandler<TagFormattedEventArgs> TagFormatted;
+
+        /// <summary>
         /// Gets the text that is generated for the given object.
         /// </summary>
         /// <param name="source">The object to generate the text with.</param>
@@ -98,8 +103,19 @@ namespace Mustache
                 contextScope.ValueRequested += handler;
             }
             StringWriter writer = new StringWriter(provider);
-            _generator.GetText(keyScope, writer, contextScope);
+            _generator.GetText(writer, keyScope, contextScope, postProcess);
             return writer.ToString();
+        }
+
+        private void postProcess(Substitution substitution)
+        {
+            if (TagFormatted == null)
+            {
+                return;
+            }
+            TagFormattedEventArgs args = new TagFormattedEventArgs(substitution.Key, substitution.Substitute, substitution.IsExtension);
+            TagFormatted(this, args);
+            substitution.Substitute = args.Substitute;
         }
     }
 }
