@@ -81,10 +81,10 @@ namespace Mustache
                 foreach (IGenerator generator in generators)
                 {
                     generator.GetText(context.Writer ?? writer, context.KeyScope ?? keyScope, context.ContextScope, postProcessor);
-                    if (context.WriterNeedsConsidated)
-                    {
-                        writer.Write(_definition.ConsolidateWriter(context.Writer ?? writer, arguments));
-                    }
+                }
+                if (context.WriterNeedsConsidated)
+                {
+                    writer.Write(_definition.ConsolidateWriter(context.Writer ?? writer, arguments));
                 }
             }
         }
