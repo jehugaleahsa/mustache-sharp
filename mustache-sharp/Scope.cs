@@ -183,7 +183,7 @@ namespace Mustache
         private SearchResults tryFind(string name)
         {
             SearchResults results = new SearchResults();
-            results.Members = name.Split('.');
+            results.Members = RegexHelper.SplitKey(name);
             results.MemberIndex = 0;
             if (results.Member == "this")
             {
@@ -200,7 +200,7 @@ namespace Mustache
                 results.Lookup = toLookup(results.Value);
                 results.MemberIndex = index;
                 object value;
-                results.Found = results.Lookup.TryGetValue(results.Member, out value);
+                results.Found = tryLookup(results, out value);
                 results.Value = value;
             }
             return results;
@@ -210,7 +210,7 @@ namespace Mustache
         {
             results.Lookup = toLookup(_source);
             object value;
-            if (results.Lookup.TryGetValue(results.Member, out value))
+            if (tryLookup(results, out value))
             {
                 results.Found = true;
                 results.Value = value;
@@ -224,6 +224,31 @@ namespace Mustache
             }
             _parent.tryFindFirst(results);
         }
+
+		private bool tryLookup(SearchResults results, out object value) {
+			string member = results.Member;
+			if (member.StartsWith("[")) {
+				value = null;
+				PropertyDictionary dic = results.Lookup as PropertyDictionary;
+				if (dic == null) return false;
+				member = member.Substring(1, member.Length - 2);
+				if (RegexHelper.IsInteger(member)) {
+					int i = int.Parse(member);
+					if (dic.HasIntThis) {
+						if (dic.TryGetThisValue(i, out value)) return true;
+					}
+					Array array = dic.Instance as Array;
+					if (array != null && i < array.GetUpperBound(0)) {
+						value = array.GetValue(i);
+						return true;
+					}
+				}
+				if(dic.HasStringThis) return (dic.TryGetThisValue(member, out value));
+				return false;
+			} else {
+				return results.Lookup.TryGetValue(member, out value);
+			}
+		}
     }
 
     internal class SearchResults
