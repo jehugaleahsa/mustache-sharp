@@ -1243,6 +1243,20 @@ Last";
         }
 
         /// <summary>
+        /// We can use the start and end tags to get a bool if iteration is at the start of the collection or end.
+        /// </summary>
+        [TestMethod]
+        public void TestCompile_Each_StartEnd_PrintsStartEndOfCollection()
+        {
+            FormatCompiler parser = new FormatCompiler();
+            const string format = "{{#each this}}{{#start}}{{#end}}{{/each}}";
+            Generator generator = parser.Compile(format);
+            string result = generator.Render(new int[] { 1, 2, 3 });
+            const string expected = @"TrueFalseFalseFalseFalseTrue";
+            Assert.AreEqual(expected, result, "The wrong text was generated.");
+        }
+
+        /// <summary>
         /// A bug was found where the index tag was trying to read the arguments for the next tag.
         /// This was caused by the index tag chewing up more of the input than it was supposed to.
         /// </summary>
@@ -1421,6 +1435,20 @@ Your order total was: $7.50";
             string actual = generator.Render(new int[] { 1, 1, 1, 1, });
             string expected = "123";
             Assert.AreEqual(expected, actual, "The numbers were not valid.");
+        }
+
+        /// <summary>
+        /// We will use the start and end variables to determine what to print.
+        /// </summary>
+        [TestMethod]
+        public void TestCompile_CanUseContextStartEndVariablesToMakeDecisions()
+        {
+            FormatCompiler compiler = new FormatCompiler();
+            const string format = @"{{#each this}}{{#if @start}}<li class=""first""></li>{{#elif @end}}<li class=""last""></li>{{#else}}<li class=""middle""></li>{{/if}}{{/each}}";
+            Generator generator = compiler.Compile(format);
+            string actual = generator.Render(new int[] { 1, 1, 1, 1, });
+            string expected = @"<li class=""first""></li><li class=""middle""></li><li class=""middle""></li><li class=""last""></li>";
+            Assert.AreEqual(expected, actual, "The string is not valid.");
         }
 
         /// <summary>
