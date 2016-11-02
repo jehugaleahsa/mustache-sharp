@@ -35,6 +35,10 @@ namespace Mustache
             _tagLookup.Add(eachDefinition.Name, eachDefinition);
             IndexTagDefinition indexDefinition = new IndexTagDefinition();
             _tagLookup.Add(indexDefinition.Name, indexDefinition);
+            StartTagDefinition startDefinition = new StartTagDefinition();
+            _tagLookup.Add(startDefinition.Name, startDefinition);
+            EndTagDefinition endDefinition = new EndTagDefinition();
+            _tagLookup.Add(endDefinition.Name, endDefinition);
             WithTagDefinition withDefinition = new WithTagDefinition();
             _tagLookup.Add(withDefinition.Name, withDefinition);
             NewlineTagDefinition newlineDefinition = new NewlineTagDefinition();

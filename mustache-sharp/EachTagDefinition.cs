@@ -58,6 +58,14 @@ namespace Mustache
             {
                 yield break;
             }
+
+            int count = 0;
+            IEnumerator enumerator = enumerable.GetEnumerator();
+            while (enumerator.MoveNext())
+            {
+                count++;
+            }
+
             int index = 0;
             foreach (object item in enumerable)
             {
@@ -68,6 +76,8 @@ namespace Mustache
                     ContextScope = contextScope.CreateChildScope(),
                 };
                 childContext.ContextScope.Set("index", index);
+                childContext.ContextScope.Set("start", index == 0);
+                childContext.ContextScope.Set("end", (index + 1) == count);
                 yield return childContext;
                 ++index;
             }
@@ -79,7 +89,7 @@ namespace Mustache
         /// <returns>The name of the tags that are in scope.</returns>
         protected override IEnumerable<string> GetChildTags()
         {
-            return new string[] { "index" };
+            return new string[] { "index", "start", "end" };
         }
 
         /// <summary>
