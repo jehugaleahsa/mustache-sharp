@@ -69,6 +69,33 @@ namespace Mustache
             {
                 return false;
             }
+
+            var conditionType = condition.GetType();
+            switch(conditionType.FullName)
+            { 
+                case "Newtonsoft.Json.Linq.JValue":
+                    dynamic dynamicCondition = condition;
+                    string jvalueType = dynamicCondition.Type.ToString();
+
+                    switch (jvalueType)
+                    {
+                        case "String":
+                            return !string.IsNullOrWhiteSpace(dynamicCondition.Value);
+                        case "Boolean":
+                            return dynamicCondition.Value;
+                        case "Integer":
+                        case "Float": //CLR type == double
+                            return dynamicCondition.Value != 0;
+                        case "Null":
+                            return false;
+                        default:
+                            throw new Exception($"Unsupported JValue type: '{jvalueType}'");
+                    }
+                case "Newtonsoft.Json.Linq.JArray":
+                    dynamic jsonArray = condition;
+                    return jsonArray.Count > 0;
+            }
+
             IEnumerable enumerable = condition as IEnumerable;
             if (enumerable != null)
             {
