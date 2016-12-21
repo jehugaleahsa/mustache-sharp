@@ -6,6 +6,15 @@ namespace Mustache
     public sealed class HtmlFormatCompiler
     {
         private readonly FormatCompiler compiler;
+        
+        /// <summary>
+        /// Gets or sets whether newlines are removed from the template (default: true).
+        /// </summary>
+        public bool RemoveNewLines
+        {
+            get { return compiler.RemoveNewLines; }
+            set { compiler.RemoveNewLines = value; }
+        }
 
         public HtmlFormatCompiler()
         {
