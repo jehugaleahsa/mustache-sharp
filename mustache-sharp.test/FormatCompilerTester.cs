@@ -209,7 +209,7 @@ namespace Mustache.Test
         }
 
         /// <summary>
-        /// If we specify a positive alignment with a key with an optional + character, 
+        /// If we specify a positive alignment with a key with an optional + character,
         /// the alignment should be used when rending the value.
         /// </summary>
         [TestMethod]
@@ -1285,6 +1285,37 @@ Item Number: foo<br />
 
         #endregion
 
+        #region Delimiter
+
+        /// <summary>
+        /// If we pass an empty collection to an each statement, the content should not be printed.
+        /// </summary>
+        [TestMethod]
+        public void TestCompile_Delimiter_EmptyCollection_SkipsContent()
+        {
+            FormatCompiler parser = new FormatCompiler();
+            const string format = "Before{{#each this}}{{this}}{{#delimiter}},{{/delimiter}}{{/each}}After";
+            Generator generator = parser.Compile(format);
+            string result = generator.Render(new int[0]);
+            Assert.AreEqual("BeforeAfter", result, "The wrong text was generated.");
+        }
+
+        /// <summary>
+        /// If we pass a populated collection to an each statement, the content should be printed
+        /// for each item in the collection, using that item as the new scope context.
+        /// </summary>
+        [TestMethod]
+        public void TestCompile_Delimiter_PopulatedCollection_PrintsContentForEachExceptLast()
+        {
+            FormatCompiler parser = new FormatCompiler();
+            const string format = "Before{{#each this}}{{this}}{{#delimiter}},{{/delimiter}}{{/each}}After";
+            Generator generator = parser.Compile(format);
+            string result = generator.Render(new int[] { 1, 2, 3 });
+            Assert.AreEqual("Before1,2,3After", result, "The wrong text was generated.");
+        }
+
+        #endregion
+
         #region With
 
         /// <summary>
@@ -1305,7 +1336,7 @@ Item Number: foo<br />
         #region Default Parameter
 
         /// <summary>
-        /// If a tag is defined with a default parameter, the default value 
+        /// If a tag is defined with a default parameter, the default value
         /// should be returned if an argument is not provided.
         /// </summary>
         [TestMethod]
@@ -1370,7 +1401,7 @@ Your order total was: {{Total:C}}
                 Order = new
                 {
                     Total = 7.50m,
-                    LineItems = new object[] 
+                    LineItems = new object[]
                     {
                         new { Name = "Banana", UnitPrice = 2.50m, Quantity = 1 },
                         new { Name = "Orange", UnitPrice = .50m, Quantity = 5 },
@@ -1477,7 +1508,7 @@ Odd
         /// they should not be removed from the output.
 		/// </summary>
 		[TestMethod]
-		public void TestCompile_PreserveNewLines() 
+		public void TestCompile_PreserveNewLines()
         {
 		    FormatCompiler compiler = new FormatCompiler();
 		    compiler.RemoveNewLines = false;

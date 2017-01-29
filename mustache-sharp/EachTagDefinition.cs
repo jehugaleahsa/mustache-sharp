@@ -47,8 +47,8 @@ namespace Mustache
         /// <param name="arguments">The arguments passed to the tag.</param>
         /// <returns>The scope to use when building the inner text of the tag.</returns>
         public override IEnumerable<NestedContext> GetChildContext(
-            TextWriter writer, 
-            Scope keyScope, 
+            TextWriter writer,
+            Scope keyScope,
             Dictionary<string, object> arguments,
             Scope contextScope)
         {
@@ -59,17 +59,33 @@ namespace Mustache
                 yield break;
             }
             int index = 0;
-            foreach (object item in enumerable)
+            IEnumerator iter = enumerable.GetEnumerator();
+            using (iter as IDisposable)
             {
-                NestedContext childContext = new NestedContext() 
-                { 
-                    KeyScope = keyScope.CreateChildScope(item), 
-                    Writer = writer, 
-                    ContextScope = contextScope.CreateChildScope(),
-                };
-                childContext.ContextScope.Set("index", index);
-                yield return childContext;
-                ++index;
+                if (iter.MoveNext())
+                {
+                    object item = iter.Current;
+                    bool isDelimited = true;
+
+                    while (isDelimited)
+                    {
+                        isDelimited = iter.MoveNext();
+
+                        NestedContext childContext = new NestedContext()
+                        {
+                            KeyScope = keyScope.CreateChildScope(item),
+                            Writer = writer,
+                            ContextScope = contextScope.CreateChildScope(),
+                        };
+                        childContext.ContextScope.Set("index", index);
+                        childContext.ContextScope.Set("isDelimited", isDelimited);
+                        yield return childContext;
+                        ++index;
+
+                        if(isDelimited)
+                            item = iter.Current;
+                    }
+                }
             }
         }
 
@@ -79,7 +95,7 @@ namespace Mustache
         /// <returns>The name of the tags that are in scope.</returns>
         protected override IEnumerable<string> GetChildTags()
         {
-            return new string[] { "index" };
+            return new string[] { "index", "delimiter" };
         }
 
         /// <summary>
