@@ -65,7 +65,6 @@ namespace Mustache
                 if (iter.MoveNext())
                 {
                     object item = iter.Current;
-                    object next = null;
                     bool isDelimited = true;
 
                     while (isDelimited)
