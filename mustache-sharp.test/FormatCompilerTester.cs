@@ -2,7 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+#if NETCOREAPP1_1
+using System.Net;
+#else
 using System.Web;
+#endif
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Mustache.Test
@@ -13,7 +17,7 @@ namespace Mustache.Test
     [TestClass]
     public class FormatCompilerTester
     {
-        #region Tagless Formats
+#region Tagless Formats
 
         /// <summary>
         /// If the given format is null, an exception should be thrown.
@@ -71,9 +75,9 @@ namespace Mustache.Test
             Assert.AreEqual(expected, result, "The wrong text was generated.");
         }
 
-        #endregion
+#endregion
 
-        #region Key
+#region Key
 
         /// <summary>
         /// Replaces placeholds with the actual value.
@@ -529,9 +533,9 @@ Content";
             public new T Value { get; set; }
         }
 
-        #endregion
+#endregion
 
-        #region Comment
+#region Comment
 
         /// <summary>
         /// Removes comments from the middle of text.
@@ -776,9 +780,9 @@ Middle";
             Assert.AreEqual("First", result, "The wrong text was generated.");
         }
 
-        #endregion
+#endregion
 
-        #region If
+#region If
 
         /// <summary>
         /// If the condition evaluates to false, the content of an if statement should not be printed.
@@ -1080,9 +1084,9 @@ Last";
             Assert.AreEqual(expected, result, "The wrong text was generated.");
         }
 
-        #endregion
+#endregion
 
-        #region If/Else
+#region If/Else
 
         /// <summary>
         /// If the condition evaluates to false, the content of an else statement should be printed.
@@ -1124,9 +1128,9 @@ Last";
             Assert.AreEqual("BeforeNay{{#else}}BadAfter", result, "The wrong text was generated.");
         }
 
-        #endregion
+#endregion
 
-        #region If/Elif/Else
+#region If/Elif/Else
 
         /// <summary>
         /// If the if statement evaluates to true, its block should be printed.
@@ -1167,9 +1171,9 @@ Last";
             Assert.AreEqual("BeforeThirdAfter", result, "The wrong text was generated.");
         }
 
-        #endregion
+#endregion
 
-        #region If/Elif
+#region If/Elif
 
         /// <summary>
         /// If the elif statement evaluates to false and there is no else statement, nothing should be printed.
@@ -1197,9 +1201,9 @@ Last";
             Assert.AreEqual("BeforeThirdAfter", result, "The wrong text was generated.");
         }
 
-        #endregion
+#endregion
 
-        #region Each
+#region Each
 
         /// <summary>
         /// If we pass an empty collection to an each statement, the content should not be printed.
@@ -1283,9 +1287,9 @@ Item Number: foo<br />
             public String Val { get; set; }
         }
 
-        #endregion
+#endregion
 
-        #region With
+#region With
 
         /// <summary>
         /// The object replacing the placeholder should be used as the context of a with statement.
@@ -1300,9 +1304,9 @@ Item Number: foo<br />
             Assert.AreEqual("BeforeHelloAfter", result, "The wrong text was generated.");
         }
 
-        #endregion
+#endregion
 
-        #region Default Parameter
+#region Default Parameter
 
         /// <summary>
         /// If a tag is defined with a default parameter, the default value 
@@ -1337,9 +1341,9 @@ Item Number: foo<br />
             }
         }
 
-        #endregion
+#endregion
 
-        #region Compound Tags
+#region Compound Tags
 
         /// <summary>
         /// If a format contains multiple tags, they should be handled just fine.
@@ -1390,9 +1394,9 @@ Your order total was: $7.50";
             Assert.AreEqual(expected, result, "The wrong text was generated.");
         }
 
-        #endregion
+#endregion
 
-        #region Unknown Tags
+#region Unknown Tags
 
         /// <summary>
         /// If an unknown tag is encountered, an exception should be thrown.
@@ -1405,9 +1409,9 @@ Your order total was: $7.50";
             compiler.Compile("{{#split Names}}");
         }
 
-        #endregion
+#endregion
 
-        #region Context Variables
+#region Context Variables
 
         /// <summary>
         /// We will use the index variable to determine whether or not to print out a line.
@@ -1468,9 +1472,9 @@ Odd
             Assert.AreEqual(expected, actual, "The context variable was not toggled.");
         }
 
-        #endregion
+#endregion
 
-        #region New Line Management
+#region New Line Management
 
 		/// <summary>
 		/// If the compiler is configured to ignore new lines,
@@ -1491,9 +1495,9 @@ Odd
 		    Assert.AreEqual(expected, result, "The wrong text was generated.");
 		}
 
-        #endregion
+#endregion
 
-        #region Strings
+#region Strings
 
         /// <summary>
         /// We will use a string variable to determine whether or not to print out a line.
@@ -1523,9 +1527,9 @@ Odd
             Assert.AreEqual(expected, actual, "The string was not passed to the formatter.");
         }
 
-        #endregion
+#endregion
 
-        #region Numbers
+#region Numbers
 
         /// <summary>
         /// We will use a number variable to determine whether or not to print out a line.
@@ -1555,9 +1559,9 @@ Odd
             Assert.AreEqual(expected, actual, "The number was not passed to the formatter.");
         }
 
-        #endregion
+#endregion
 
-        #region Custom Tags
+#region Custom Tags
 
         [TestMethod]
         public void TestCompile_NestedContext_ConsolidatesWriter()
@@ -1569,7 +1573,11 @@ Odd
             Generator generator = compiler.Compile(format);
 
             string actual = generator.Render(new { url = "https://google.com" });
+#if NETCOREAPP1_1
+            string expected = WebUtility.UrlEncode("https://google.com");
+#else
             string expected = HttpUtility.UrlEncode("https://google.com");
+#endif
             Assert.AreEqual(expected, actual, "Value field didn't work");
         }
 
@@ -1598,10 +1606,14 @@ Odd
 
             public override string ConsolidateWriter(TextWriter writer, Dictionary<string, object> arguments)
             {
+#if NETCOREAPP1_1
+                return WebUtility.UrlEncode(writer.ToString());
+#else
                 return HttpUtility.UrlEncode(writer.ToString());
+#endif
             }
         }
 
-        #endregion
+#endregion
     }
 }
