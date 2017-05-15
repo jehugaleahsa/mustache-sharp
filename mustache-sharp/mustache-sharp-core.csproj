@@ -11,6 +11,8 @@
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <RootNamespace>Mustache</RootNamespace>
     <AssemblyName>Mustache</AssemblyName>
+    <Version>1.0.1-alpha1</Version>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 </PropertyGroup>
 
   <ItemGroup>
