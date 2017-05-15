@@ -3,7 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-
+#if NETCOREAPP1_1
+using System.Reflection;
+#endif
 namespace Mustache
 {
     internal static class UpcastDictionary
@@ -35,15 +37,23 @@ namespace Mustache
                 Type type = pending.Dequeue();
                 visited.Add(type);
                 yield return type;
-
-                if (type.BaseType != null)
+#if NETCOREAPP1_1
+                if (type.GetTypeInfo().BaseType != null)
                 {
-                    if (!visited.Contains(type.BaseType))
+                    if (!visited.Contains(type.GetTypeInfo().BaseType))
                     {
-                        pending.Enqueue(type.BaseType);
+                        pending.Enqueue(type.GetTypeInfo().BaseType);
                     }
                 }
-
+#else
+                if (type.BaseType != null)
+                {
+                if (!visited.Contains(type.BaseType))
+                {
+                    pending.Enqueue(type.BaseType);
+                }
+            }
+#endif
                 foreach (Type interfaceType in type.GetInterfaces())
                 {
                     if (!visited.Contains(interfaceType))
@@ -66,7 +76,11 @@ namespace Mustache
 
         private static Type getValueType(Type type)
         {
+#if NETCOREAPP1_1
+            if (!type.GetTypeInfo().IsGenericType)
+#else
             if (!type.IsGenericType)
+#endif
             {
                 return null;
             }
