@@ -61,7 +61,12 @@ namespace Mustache
                 // Do not escape text within triple curly braces
                 return;
             }
+#if NETCOREAPP1_1
+            // TODO: Encontrar una mejor manera (And ugly way to escape chars but SecurityElement doesn't exist in core)
+            e.Substitute = e.Substitute.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;").Replace("\"", "&quot;").Replace("'", "&apos;");
+#else
             e.Substitute = SecurityElement.Escape(e.Substitute);
+#endif
         }
     }
 }

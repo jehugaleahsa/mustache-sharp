@@ -47,7 +47,7 @@ namespace Mustache.Test
             IDictionary<string, object> result = UpcastDictionary.Create(source);
             Assert.IsNull(result, "Null should be returned if the first generic type argument is not a string.");
         }
-
+#if !NETCOREAPP1_1
         [TestMethod]
         public void ShouldReturnNullIfNotDictionaryType()
         {
@@ -55,7 +55,7 @@ namespace Mustache.Test
             IDictionary<string, object> result = UpcastDictionary.Create(source);
             Assert.IsNull(result, "Null should be returned for non-dictionary types.");
         }
-
+#endif
         [TestMethod]
         public void ShouldReturnUpcastWrapperForDictionary_string_TValue()
         {
