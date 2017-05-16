@@ -88,7 +88,11 @@ namespace Mustache
         private static int getDistance(Type type, MemberInfo memberInfo)
         {
             int distance = 0;
+#if NETCOREAPP1_1
+            for (; type != null && type != memberInfo.DeclaringType; type = type.GetTypeInfo().BaseType)
+#else
             for (; type != null && type != memberInfo.DeclaringType; type = type.BaseType)
+#endif
             {
                 ++distance;
             }
