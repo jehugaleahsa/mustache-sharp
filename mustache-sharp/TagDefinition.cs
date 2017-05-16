@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+#if NETCOREAPP1_1
+using Resources = Mustache.Properties.Resources_Core;
+#else
 using Mustache.Properties;
+#endif
 using System.IO;
 
 namespace Mustache

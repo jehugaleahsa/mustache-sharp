@@ -2,7 +2,11 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+#if NETCOREAPP1_1
+using Resources = Mustache.Properties.Resources_Core;
+#else
 using Mustache.Properties;
+#endif
 
 namespace Mustache
 {

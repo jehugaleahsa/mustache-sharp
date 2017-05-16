@@ -3,7 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+#if NETCOREAPP1_1
+using Resources = Mustache.Properties.Resources_Core;
+#else
 using Mustache.Properties;
+#endif
 
 namespace Mustache
 {
