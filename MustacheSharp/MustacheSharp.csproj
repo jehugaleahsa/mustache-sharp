@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>NET45;netstandard2.0</TargetFrameworks>
+    <RootNamespace>Mustache</RootNamespace>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>MustacheSharp.snk</AssemblyOriginatorKeyFile>
+    <DelaySign>false</DelaySign>
+    <AssemblyName>mustache-sharp</AssemblyName>
+    <Authors>Truncon</Authors>
+    <Description>An extension of the mustache text template engine for .NET.</Description>
+    <Copyright>Copyright © 2013</Copyright>
+    <PackageLicenseUrl>https://github.com/jehugaleahsa/mustache-sharp/blob/master/UNLICENSE.txt</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/jehugaleahsa/mustache-sharp</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/jehugaleahsa/mustache-sharp.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>mustache handlebars text generation building template</PackageTags>
+    <PackageReleaseNotes>Migrate to .NET Standard 2.0</PackageReleaseNotes>
+    <NeutralLanguage>en-US</NeutralLanguage>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>
