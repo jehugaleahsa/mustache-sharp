@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Web;
@@ -1366,7 +1367,8 @@ Your order total was: {{Total:C}}
 {{/if}}
 {{/with}}";
             Generator generator = compiler.Compile(format);
-            string result = generator.Render(new
+            
+            string result = generator.Render(CultureInfo.GetCultureInfo("en-US"), new
             {
                 Customer = new { FirstName = "Bob" },
                 Order = new
