@@ -1,3 +1,5 @@
+> *Archived 2026-03-28*: This project is very old. When I first implemented it, I was just looking for a better `String.format`. Rather than limit it in scope, I let this project grow and grow. Eventually, this project started to feel like a full-fledged HTML templating language or something - which was never the intent. I maintained this project for about 5-10 years before I had to finally to admit that I had no more interest in maintaining it.
+
 # mustache#
 
 An extension of the mustache text template engine for .NET.
