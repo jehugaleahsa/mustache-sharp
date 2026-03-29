@@ -77,6 +77,10 @@ namespace Mustache
             {
                 return (Char)condition != '\0';
             }
+            if (condition is DateTime) 
+            {
+                return (DateTime)condition != default(DateTime);
+            }
             try
             {
                 decimal number = (decimal)Convert.ChangeType(condition, typeof(decimal));
