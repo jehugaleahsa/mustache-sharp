@@ -1527,6 +1527,51 @@ Odd
             Assert.AreEqual(expected, actual, "The string was not passed to the formatter.");
         }
 
+        [TestMethod]
+        public void TestCompile_EmptyStringProperty() 
+        {
+            FormatCompiler compiler = new FormatCompiler();
+            const string format = @"{{Greeting}} {{Name}}";
+            var data = new 
+            {
+                Greeting = "Hello",
+                Name = ""
+            };
+            Generator generator = compiler.Compile(format);
+            string actual = generator.Render(data);
+            string expected = "Hello ";
+            Assert.AreEqual(expected, actual, "An empty string property should be rendered as an empty string.");
+        }
+
+        [TestMethod]
+        public void TestCompile_NullValueProperty() {
+            FormatCompiler compiler = new FormatCompiler();
+            const string format = @"{{Greeting}} {{Name}}";
+            var data = new 
+            {
+                Greeting = "Hello",
+                Name = (String)null
+            };
+            Generator generator = compiler.Compile(format);
+            string actual = generator.Render(data);
+            string expected = "Hello ";
+            Assert.AreEqual(expected, actual, "An null valued property should be rendered as an empty string.");
+        }
+
+        [TestMethod]
+        public void TestCompile_AllowSingleCurlyBracesInData() {
+            FormatCompiler compiler = new FormatCompiler();
+            const string format = @"See this code: {{Code}}!";
+            var data = new 
+            {
+                Code = "function() { retrurn 'this is evil'; }"
+            };
+            Generator generator = compiler.Compile(format);
+            string actual = generator.Render(data);
+            string expected = "See this code: function() { retrurn 'this is evil'; }!";
+            Assert.AreEqual(expected, actual, "Should not touch single curly braces in data values.");
+        }
+
         #endregion
 
         #region Numbers
